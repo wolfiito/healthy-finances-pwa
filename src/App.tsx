@@ -1,7 +1,7 @@
 // En: src/App.tsx
 
 import { IonApp, IonRouterOutlet } from '@ionic/react';
-// 1. CAMBIAMOS BrowserRouter por HashRouter para estabilidad PWA
+// Usamos HashRouter para estabilidad PWA (rutas con #)
 import { HashRouter as Router, Route, Redirect } from 'react-router-dom'; 
 import { useAuthStore } from './store/authStore';
 
@@ -18,10 +18,10 @@ function App() {
       <Router> 
         <IonRouterOutlet>
           
-          {/* Rutas */}
+          {/* Ruta pública */}
           <Route exact path="/login" component={Login} />
-
-          {/* Ruta protegida (Modo PWA/Standalone) */}
+          
+          {/* Ruta protegida */}
           <Route
             path="/app"
             render={() => {
@@ -31,10 +31,12 @@ function App() {
             }}
           />
           
-          {/* Redirección por defecto */}
+          {/* --- ¡AQUÍ ESTÁ EL ARREGLO! --- */}
+          {/* Redirección por defecto. La etiqueta <Route> cierra aquí. */}
           <Route exact path="/">
             <Redirect to="/login" />
-          </Redirect>
+          </Route> 
+          {/* --- FIN DEL ARREGLO --- */}
           
         </IonRouterOutlet>
       </Router>
@@ -42,4 +44,4 @@ function App() {
   );
 }
 
-export default App;   
+export default App;
