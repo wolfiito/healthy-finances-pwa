@@ -34,9 +34,23 @@ ion-card.card-hero {
   }
 
 
-/* Regla para añadir un margen inferior global a la barra de pestañas.
-  Esto levanta la barra para separarla del borde inferior del dispositivo.
-*/
-ion-tab-bar {
-  margin-bottom: 50px;
-}
+  ion-tab-bar {
+    /* Cambiamos la posición 'bottom' por defecto.
+      Usamos calc() para sumar:
+      1. La variable de área segura (para iPhone)
+      2. Nuestro margen deseado (ej. 10px)
+    */
+    bottom: calc(var(--ion-safe-area-bottom, 0px) + 10px);
+    
+    /* También necesitamos un pequeño margen a los lados
+      para que "flote" y se vea mejor.
+    */
+    margin-left: 10px;
+    margin-right: 10px;
+    
+    /* Bordes redondeados para el look "flotante" */
+    border-radius: 16px;
+  
+    /* (Opcional) Añadir una sombra sutil */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
