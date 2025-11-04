@@ -38,5 +38,5 @@ ion-card.card-hero {
   Esto levanta la barra para separarla del borde inferior del dispositivo.
 */
 ion-tab-bar {
-  margin-bottom: 10px;
+  margin-bottom: 50px;
 }
