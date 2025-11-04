@@ -1,0 +1,34 @@
+/* En: src/theme/variables.css (al final) */
+
+/*
+  Usamos 'ion-card.card-hero' para ser más específicos
+  que el estilo por defecto 'ion-card'.
+*/
+ion-card.card-hero {
+    /*
+      Usamos !important. Esto es una "mala práctica" en CSS normal,
+      pero al pelear contra un framework como Ionic, a veces es necesario
+      para anular sus variables por defecto.
+    */
+    --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary)) !important;
+    --color: #ffffff !important;
+    
+    text-align: center;
+    box-shadow: none;
+    border-radius: 16px;
+  }
+  
+  /* Estas reglas ya deberían funcionar, pero las reforzamos */
+  .card-hero h1 {
+    color: #ffffff; /* Forzar blanco */
+    font-size: 2.8em;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  
+  .card-hero ion-card-title {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1em;
+    font-weight: 500;
+  }

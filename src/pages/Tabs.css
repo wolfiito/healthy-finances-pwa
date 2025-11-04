@@ -1,0 +1,4 @@
+/* En: src/pages/Tabs.css */
+ion-fab[vertical="bottom"] {
+  z-index: 101 !important;
+}

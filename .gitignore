@@ -1,0 +1,17 @@
+# Dependencias
+node_modules
+
+# Carpeta de compilación
+dist
+dist-ssr
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variables de entorno (¡Importante!)
+.env
+.env.local
+.env.production
