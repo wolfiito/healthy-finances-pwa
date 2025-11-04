@@ -2,7 +2,7 @@
     "name": "Healthy Finances",
     "short_name": "Finances App",
     "description": "Tu aplicación personal para gestionar cuentas y proyecciones.",
-    "start_url": "/app/dashboard",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#3880ff",
