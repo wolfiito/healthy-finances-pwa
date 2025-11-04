@@ -32,3 +32,11 @@ ion-card.card-hero {
     font-size: 1em;
     font-weight: 500;
   }
+
+
+/* Regla para añadir un margen inferior global a la barra de pestañas.
+  Esto levanta la barra para separarla del borde inferior del dispositivo.
+*/
+ion-tab-bar {
+  margin-bottom: 10px;
+}
