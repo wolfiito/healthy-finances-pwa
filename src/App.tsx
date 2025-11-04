@@ -1,28 +1,29 @@
 // En: src/App.tsx
 
 import { IonApp, IonRouterOutlet } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { Route, Redirect } from 'react-router-dom';
-
-// 1. Importar el "cerebro" de autenticación
+// 1. CAMBIAMOS IonReactRouter por BrowserRouter (o HashRouter para PWA)
+// Como estamos usando Ionic, envolvemos el BrowserRouter normal.
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 
-// 2. Importar nuestras páginas
+// Importar nuestras páginas
 import Login from './pages/Login';
 import Tabs from './pages/Tabs';
 
 function App() {
-  // 3. Obtener el estado de autenticación
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
+  // 2. Definimos la aplicación principal con el Router
   return (
     <IonApp>
-      <IonReactRouter>
+      {/* 3. Usamos Router (Ionic ya maneja las animaciones) */}
+      <Router> 
         <IonRouterOutlet>
+          
           {/* Ruta pública */}
           <Route exact path="/login" component={Login} />
 
-          {/* --- ¡LA NUEVA LÓGICA DE SEGURIDAD! --- */}
+          {/* Ruta protegida (Modo PWA/Standalone) */}
           <Route
             path="/app"
             render={() => {
@@ -31,15 +32,14 @@ function App() {
               return isAuthenticated ? <Tabs /> : <Redirect to="/login" />;
             }}
           />
-          {/* --- FIN DEL ARREGLO --- */}
           
-          {/* Ruta por defecto */}
+          {/* 4. Redirección por defecto */}
           <Route exact path="/">
             <Redirect to="/login" />
           </Route>
           
         </IonRouterOutlet>
-      </IonReactRouter>
+      </Router>
     </IonApp>
   );
 }
