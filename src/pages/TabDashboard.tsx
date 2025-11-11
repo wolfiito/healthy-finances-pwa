@@ -15,53 +15,45 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonIcon // <-- 1. IMPORTAR EL COMPONENTE DE ÍCONO
+  IonIcon
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import CategoryChart from '../components/CategoryChart';
-// 2. IMPORTAR LOS ÍCONOS QUE USAREMOS
+// Ya NO importamos CategoryChart
 import { home, cash, card, car, receiptOutline } from 'ionicons/icons';
 
-// (La interfaz se queda igual)
+// Interfaz para el Saldo (como antes)
 interface SimulationEvent {
   date: string;
   description: string;
   amount: string;
 }
 
-// --- ¡NUEVA FUNCIÓN! ---
-/**
- * Devuelve un ícono basado en palabras clave de la descripción.
- */
+// --- ¡NUEVO! Interfaz para Transacción Individual ---
+interface Transaction {
+  id: number;
+  description: string;
+  amount: string;
+  date: string;
+  category: string;
+}
+// --- FIN NUEVO ---
+
+// (La función getIconForEvent se queda igual)
 const getIconForEvent = (description: string) => {
   const desc = description.toLowerCase();
-  
-  if (desc.includes('renta') || desc.includes('casa')) {
-    return home;
-  }
-  if (desc.includes('tanda')) {
-    return cash;
-  }
-  if (desc.includes('tc') || desc.includes('tarjeta')) {
-    return card;
-  }
-  if (desc.includes('coche') || desc.includes('préstamo')) {
-    return car;
-  }
-  
-  // Ícono por defecto para otros gastos
+  if (desc.includes('renta') || desc.includes('casa')) return home;
+  if (desc.includes('tanda')) return cash;
+  if (desc.includes('tc') || desc.includes('tarjeta')) return card;
+  if (desc.includes('coche') || desc.includes('préstamo')) return car;
   return receiptOutline; 
 };
-// --- FIN DE LA NUEVA FUNCIÓN ---
-
 
 const TabDashboard: React.FC = () => {
-  // ... (Toda la lógica de 'useState', 'fetchData', 'useEffect', 'formatCurrency' y 'renderBalance' 
-  //      se queda exactamente igual que en el paso anterior) ...
   const [balance, setBalance] = useState<string | null>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<SimulationEvent[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]); // <-- ¡NUEVO ESTADO!
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -72,15 +64,22 @@ const TabDashboard: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
+      // Llamada 1: Obtener el saldo (sin cambios)
       const balanceResponse = await apiClient.get('/api/transactions/balance');
       setBalance(balanceResponse.data.current_balance);
       
+      // Llamada 2: Obtener la proyección (sin cambios)
       const projectionResponse = await apiClient.get('/api/projection?months_ahead=1');
       const allEvents: SimulationEvent[] = projectionResponse.data.simulation_log;
       const upcomingExpenses = allEvents.filter(
         (event) => parseFloat(event.amount) < 0
       );
       setUpcomingEvents(upcomingExpenses.slice(0, 5));
+
+      // --- ¡NUEVO! Llamada 3: Obtener transacciones recientes ---
+      const transactionsResponse = await apiClient.get('/api/transactions');
+      setRecentTransactions(transactionsResponse.data);
+      // --- FIN NUEVO ---
 
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al cargar datos.');
@@ -101,6 +100,7 @@ const TabDashboard: React.FC = () => {
   };
 
   const renderBalance = () => {
+    // (Esta función se queda igual)
     if (isLoading && !balance) {
       return <IonLoading isOpen={true} message={'Cargando...'} />;
     }
@@ -134,56 +134,70 @@ const TabDashboard: React.FC = () => {
         
         {renderBalance()}
 
+        {/* Tarjeta de Próximos Pagos (sin cambios) */}
         <IonCard>
           <IonCardHeader>
             <IonCardTitle>Próximos Pagos</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
+            {/* ... (lógica de 'loading' y lista de 'upcomingEvents') ... */}
             {isLoading && upcomingEvents.length === 0 && <IonText color="medium">Cargando...</IonText>}
-            
             {!isLoading && upcomingEvents.length === 0 && (
-              <IonText color="medium">No tienes pagos programados.</IonText>
+              <IonItem lines="none">
+                <IonLabel className="ion-text-center ion-padding">No tienes pagos programados.</IonLabel>
+              </IonItem>
             )}
-
-            {/* --- ¡AQUÍ ESTÁ EL CAMBIO! --- */}
-            {/* Añadimos el <IonIcon> a la lista */}
             <IonList lines="full" inset={true}>
               {upcomingEvents.map((event, index) => (
                 <IonItem key={index}>
-                  {/* 3. El nuevo ícono */}
-                  <IonIcon 
-                    icon={getIconForEvent(event.description)} 
-                    slot="start" 
-                    color="medium"
-                  />
+                  <IonIcon icon={getIconForEvent(event.description)} slot="start" color="medium"/>
                   <IonLabel>
                     <h2>{event.description}</h2>
                     <p>{new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
                   </IonLabel>
-                  <IonText 
-                    slot="end" 
-                    color="danger"
-                  >
+                  <IonText slot="end" color="danger">
                     {formatCurrency(event.amount)}
                   </IonText>
                 </IonItem>
               ))}
             </IonList>
-            {/* --- FIN DEL CAMBIO --- */}
           </IonCardContent>
         </IonCard>
 
-        {/* El gráfico se queda igual */}
+        {/* --- ¡TARJETA MODIFICADA! --- */}
+        {/* Reemplazamos el Gráfico por la Lista de Transacciones Recientes */}
         <IonCard>
           <IonCardHeader>
-            <IonCardTitle>Gastos del Mes</IonCardTitle>
+            <IonCardTitle>Movimientos Recientes</IonCardTitle>
           </IonCardHeader>
-          <IonCardContent style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '300px', width: '100%' }}>
-              <CategoryChart />
-            </div>
+          <IonCardContent>
+            {isLoading && recentTransactions.length === 0 && <IonText color="medium">Cargando...</IonText>}
+            
+            {!isLoading && recentTransactions.length === 0 && (
+              <IonItem lines="none">
+                <IonLabel className="ion-text-center ion-padding">No has registrado movimientos.</IonLabel>
+              </IonItem>
+            )}
+
+            <IonList lines="full" inset={true}>
+              {recentTransactions.map((tx) => (
+                <IonItem key={tx.id}>
+                  <IonLabel>
+                    <h2>{tx.description}</h2>
+                    <p>{new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
+                  </IonLabel>
+                  <IonText 
+                    slot="end" 
+                    color={parseFloat(tx.amount) < 0 ? 'danger' : 'success'}
+                  >
+                    {formatCurrency(tx.amount)}
+                  </IonText>
+                </IonItem>
+              ))}
+            </IonList>
           </IonCardContent>
         </IonCard>
+        {/* --- FIN DEL CAMBIO --- */}
 
       </IonContent>
     </IonPage>
