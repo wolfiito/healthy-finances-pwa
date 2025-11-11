@@ -5,9 +5,16 @@ import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import { IonText } from '@ionic/react';
+// --- ¡NUEVO! Importar componentes de lista ---
+import { 
+  IonText, 
+  IonList, 
+  IonItem, 
+  IonLabel, 
+  IonListHeader 
+} from '@ionic/react';
 
-// 1. Registrar los componentes necesarios de Chart.js
+// (Registrar ChartJS se queda igual)
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface CategoryData {
@@ -15,15 +22,19 @@ interface CategoryData {
   total: number;
 }
 
+// Helper para formatear dinero (lo usaremos en la lista)
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(value);
+};
+
 const CategoryChart: React.FC = () => {
-  // 2. Estado para los datos del gráfico
   const [chartData, setChartData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // 3. Escuchar el "gatillo"
   const { refreshKey } = useDataStore();
 
-  // 4. Cargar los datos del endpoint que creamos
   useEffect(() => {
     const fetchChartData = async () => {
       try {
@@ -31,11 +42,10 @@ const CategoryChart: React.FC = () => {
         const data: CategoryData[] = response.data;
 
         if (data.length === 0) {
-          setChartData(null); // No hay datos para mostrar
+          setChartData(null);
           return;
         }
 
-        // 5. Preparar los datos para el gráfico
         const labels = data.map(item => item.category);
         const totals = data.map(item => item.total);
 
@@ -45,7 +55,7 @@ const CategoryChart: React.FC = () => {
             {
               label: 'Gastos por Categoría',
               data: totals,
-              backgroundColor: [ // Colores de ejemplo
+              backgroundColor: [
                 'rgba(255, 99, 132, 0.7)',
                 'rgba(54, 162, 235, 0.7)',
                 'rgba(255, 206, 86, 0.7)',
@@ -53,14 +63,7 @@ const CategoryChart: React.FC = () => {
                 'rgba(153, 102, 255, 0.7)',
                 'rgba(255, 159, 64, 0.7)',
               ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-              ],
+              borderColor: [ /* ... (colores de borde) ... */ ],
               borderWidth: 1,
             },
           ],
@@ -73,9 +76,8 @@ const CategoryChart: React.FC = () => {
     };
 
     fetchChartData();
-  }, [refreshKey]); // Se refresca cuando los datos cambian
+  }, [refreshKey]);
 
-  // 6. Renderizar el gráfico
   if (error) {
     return <IonText color="danger"><p>{error}</p></IonText>;
   }
@@ -84,8 +86,32 @@ const CategoryChart: React.FC = () => {
     return <IonText color="medium"><p>No hay gastos registrados este mes.</p></IonText>;
   }
 
-  // Usamos el componente <Doughnut> (dona)
-  return <Doughnut data={chartData} />;
+  // --- ¡AQUÍ ESTÁ EL CAMBIO! ---
+  // Ahora devolvemos el Gráfico Y la Lista
+  return (
+    <>
+      {/* 1. El Gráfico (como estaba antes) */}
+      <Doughnut data={chartData} />
+
+      {/* 2. La Lista Detallada (¡Nueva!) */}
+      <IonList lines="full" style={{marginTop: '20px'}}>
+        <IonListHeader>
+          <IonLabel>Desglose de Gastos</IonLabel>
+        </IonListHeader>
+
+        {/* Mapeamos sobre los datos que ya tiene el gráfico */}
+        {chartData.labels.map((label: string, index: number) => (
+          <IonItem key={label}>
+            <IonLabel>{label}</IonLabel>
+            <IonText slot="end" color="danger">
+              {formatCurrency(chartData.datasets[0].data[index])}
+            </IonText>
+          </IonItem>
+        ))}
+      </IonList>
+    </>
+  );
+  // --- FIN DEL CAMBIO ---
 };
 
 export default CategoryChart;
