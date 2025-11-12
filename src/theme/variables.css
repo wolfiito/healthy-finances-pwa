@@ -49,8 +49,8 @@
   Ionic aplica automáticamente esta regla cuando el 
   teléfono está en Modo Oscuro.
 */
-@media (prefers-color-scheme: dark) {
-  body {
+.dark{
+  
     /* Colores Base Oscuros */
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18, 18, 18;
@@ -87,7 +87,6 @@
     --ion-color-tertiary-contrast: #000000;
     --ion-color-tertiary-shade: #7daadb;
     --ion-color-tertiary-tint: #99c7ff;
-  }
 }
 
 

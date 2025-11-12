@@ -6,9 +6,10 @@ import App from './App.tsx';
 import { setupIonicReact } from '@ionic/react';
 
 import { useAuthStore } from './store/authStore';
-
+import { useThemeStore } from './store/themeStore';
 // 2. Llama a la función 'init' ANTES de renderizar la app
 useAuthStore.getState().init();
+useThemeStore.getState().init();
 /* --- ¡NUEVO! Importar TODOS los estilos base de Ionic --- */
 
 /* Estilos Core (obligatorio) */
