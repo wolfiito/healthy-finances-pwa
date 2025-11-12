@@ -1,10 +1,10 @@
 // En: src/pages/TabDashboard.tsx
 
-import { 
-  IonPage, 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle, 
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
   IonContent,
   IonLoading,
   IonText,
@@ -20,69 +20,49 @@ import {
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-// Ya NO importamos CategoryChart
-import { home, cash, card, car, receiptOutline } from 'ionicons/icons';
+import CategoryChart from '../components/CategoryChart'; // <-- ¡IMPORTADO DE NUEVO!
+import { home, car, card, receiptOutline } from 'ionicons/icons';
 
-// Interfaz para el Saldo (como antes)
-interface SimulationEvent {
+// Interfaz para un Pago Futuro
+interface UpcomingPayment {
   date: string;
   description: string;
   amount: string;
 }
 
-// --- ¡NUEVO! Interfaz para Transacción Individual ---
-interface Transaction {
-  id: number;
-  description: string;
-  amount: string;
-  date: string;
-  category: string;
-}
-// --- FIN NUEVO ---
-
-// (La función getIconForEvent se queda igual)
-const getIconForEvent = (description: string) => {
+// Asigna un ícono basado en la descripción del pago
+const getIconForPayment = (description: string) => {
   const desc = description.toLowerCase();
-  if (desc.includes('renta') || desc.includes('casa')) return home;
-  if (desc.includes('tanda')) return cash;
-  if (desc.includes('tc') || desc.includes('tarjeta')) return card;
-  if (desc.includes('coche') || desc.includes('préstamo')) return car;
-  return receiptOutline; 
+  if (desc.includes('renta') || desc.includes('hipoteca')) return home;
+  if (desc.includes('auto') || desc.includes('coche')) return car;
+  if (desc.includes('tarjeta')) return card;
+  return receiptOutline;
 };
 
 const TabDashboard: React.FC = () => {
-  const [balance, setBalance] = useState<string | null>(null);
-  const [upcomingEvents, setUpcomingEvents] = useState<SimulationEvent[]>([]);
-  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]); // <-- ¡NUEVO ESTADO!
+  const [upcomingPayments, setUpcomingPayments] = useState<UpcomingPayment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const { refreshKey } = useDataStore();
+  const { refreshKey } = useDataStore(); // Para refrescar datos
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Llamada 1: Obtener el saldo (sin cambios)
-      const balanceResponse = await apiClient.get('/api/transactions/balance');
-      setBalance(balanceResponse.data.current_balance);
-      
-      // Llamada 2: Obtener la proyección (sin cambios)
-      const projectionResponse = await apiClient.get('/api/projection?months_ahead=1');
-      const allEvents: SimulationEvent[] = projectionResponse.data.simulation_log;
-      const upcomingExpenses = allEvents.filter(
-        (event) => parseFloat(event.amount) < 0
-      );
-      setUpcomingEvents(upcomingExpenses.slice(0, 5));
+      // Obtenemos solo los próximos pagos desde la proyección
+      const response = await apiClient.get('/api/projection?months_ahead=1');
+      const allEvents: UpcomingPayment[] = response.data.simulation_log;
 
-      // --- ¡NUEVO! Llamada 3: Obtener transacciones recientes ---
-      const transactionsResponse = await apiClient.get('/api/transactions');
-      setRecentTransactions(transactionsResponse.data);
-      // --- FIN NUEVO ---
+      // Filtramos solo gastos (montos negativos) y tomamos los 3-4 más próximos
+      const futureExpenses = allEvents
+        .filter(event => parseFloat(event.amount) < 0)
+        .slice(0, 4); 
+
+      setUpcomingPayments(futureExpenses);
 
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al cargar datos.');
+      setError(err.response?.data?.error || 'Error al cargar los datos.');
     } finally {
       setIsLoading(false);
     }
@@ -92,71 +72,58 @@ const TabDashboard: React.FC = () => {
     fetchData();
   }, [refreshKey]);
 
-  const formatCurrency = (value: string) => {
+  // Formato de moneda para MXN
+  const formatCurrency = (value: string | number) => {
+    const numericValue = typeof value === 'string' ? parseFloat(value) : value;
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
-    }).format(parseFloat(value));
-  };
-
-  const renderBalance = () => {
-    // (Esta función se queda igual)
-    if (isLoading && !balance) {
-      return <IonLoading isOpen={true} message={'Cargando...'} />;
-    }
-    if (error) {
-      return <IonText color="danger"><p>{error}</p></IonText>;
-    }
-    if (balance !== null) {
-      const formattedBalance = formatCurrency(balance);
-      return (
-        <IonCard className="card-hero">
-          <IonCardHeader>
-            <IonCardTitle>Tu Saldo Actual</IonCardTitle>
-          </IonCardHeader>
-          <IonCardContent>
-            <h1>{formattedBalance}</h1>
-          </IonCardContent>
-        </IonCard>
-      );
-    }
-    return null;
+    }).format(numericValue);
   };
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary"> {/* <-- ¡AÑADE ESTO! */}
-          <IonTitle>Resumen</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
+      {/* El Header se elimina para un look más minimalista */}
+      <IonContent fullscreen className="ion-padding">
         
-        {renderBalance()}
+        {/* --- 1. TARJETA HÉROE --- */}
+        <IonCard className="card-hero">
+          <IonCardHeader>
+            {/* Texto solicitado */}
+            <IonCardTitle>SALDO ACTUAL (NETO)</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            {/* Monto solicitado */}
+            <h1>{formatCurrency(10131.76)}</h1>
+          </IonCardContent>
+        </IonCard>
 
-        {/* Tarjeta de Próximos Pagos (sin cambios) */}
+        {/* --- 2. LISTA DE PRÓXIMOS PAGOS --- */}
         <IonCard>
           <IonCardHeader>
             <IonCardTitle>Próximos Pagos</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            {/* ... (lógica de 'loading' y lista de 'upcomingEvents') ... */}
-            {isLoading && upcomingEvents.length === 0 && <IonText color="medium">Cargando...</IonText>}
-            {!isLoading && upcomingEvents.length === 0 && (
+            {isLoading && upcomingPayments.length === 0 && <IonText color="medium">Cargando pagos...</IonText>}
+            {!isLoading && error && <IonText color="danger">{error}</IonText>}
+            {!isLoading && upcomingPayments.length === 0 && !error && (
               <IonItem lines="none">
-                <IonLabel className="ion-text-center ion-padding">No tienes pagos programados.</IonLabel>
+                <IonLabel className="ion-text-center">¡No tienes pagos pendientes!</IonLabel>
               </IonItem>
             )}
+            
             <IonList lines="full" inset={true}>
-              {upcomingEvents.map((event, index) => (
+              {upcomingPayments.map((payment, index) => (
                 <IonItem key={index}>
-                  <IonIcon icon={getIconForEvent(event.description)} slot="start" color="medium"/>
+                  {/* Ícono temático */}
+                  <IonIcon icon={getIconForPayment(payment.description)} slot="start" color="medium"/>
                   <IonLabel>
-                    <h2>{event.description}</h2>
-                    <p>{new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
+                    <h2>{payment.description}</h2>
+                    <p>{new Date(payment.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
                   </IonLabel>
+                  {/* Monto en rojo */}
                   <IonText slot="end" color="danger">
-                    {formatCurrency(event.amount)}
+                    {formatCurrency(payment.amount)}
                   </IonText>
                 </IonItem>
               ))}
@@ -164,40 +131,16 @@ const TabDashboard: React.FC = () => {
           </IonCardContent>
         </IonCard>
 
-        {/* --- ¡TARJETA MODIFICADA! --- */}
-        {/* Reemplazamos el Gráfico por la Lista de Transacciones Recientes */}
+        {/* --- 3. GRÁFICO DE GASTO POR CATEGORÍA --- */}
         <IonCard>
           <IonCardHeader>
-            <IonCardTitle>Movimientos Recientes</IonCardTitle>
+            <IonCardTitle>Gasto por Categoría</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            {isLoading && recentTransactions.length === 0 && <IonText color="medium">Cargando...</IonText>}
-            
-            {!isLoading && recentTransactions.length === 0 && (
-              <IonItem lines="none">
-                <IonLabel className="ion-text-center ion-padding">No has registrado movimientos.</IonLabel>
-              </IonItem>
-            )}
-
-            <IonList lines="full" inset={true}>
-              {recentTransactions.map((tx) => (
-                <IonItem key={tx.id}>
-                  <IonLabel>
-                    <h2>{tx.description}</h2>
-                    <p>{new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
-                  </IonLabel>
-                  <IonText 
-                    slot="end" 
-                    color={parseFloat(tx.amount) < 0 ? 'danger' : 'success'}
-                  >
-                    {formatCurrency(tx.amount)}
-                  </IonText>
-                </IonItem>
-              ))}
-            </IonList>
+            {/* El componente del gráfico se encarga de su propio estado de carga/error */}
+            <CategoryChart />
           </IonCardContent>
         </IonCard>
-        {/* --- FIN DEL CAMBIO --- */}
 
       </IonContent>
     </IonPage>
