@@ -5,15 +5,30 @@ import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import { IonText } from '@ionic/react'; // Solo se necesita IonText
+// --- ¡NUEVO! Importar componentes de lista ---
+import { 
+  IonText, 
+  IonList, 
+  IonItem, 
+  IonLabel, 
+  IonListHeader 
+} from '@ionic/react';
 
-// Registrar ChartJS (sin cambios)
+// (Registrar ChartJS se queda igual)
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface CategoryData {
   category: string;
   total: number;
 }
+
+// Helper para formatear dinero (lo usaremos en la lista)
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(value);
+};
 
 const CategoryChart: React.FC = () => {
   const [chartData, setChartData] = useState<any>(null);
@@ -38,19 +53,18 @@ const CategoryChart: React.FC = () => {
           labels: labels,
           datasets: [
             {
-              label: 'Gasto por Categoría',
+              label: 'Gastos por Categoría',
               data: totals,
-              // --- ¡NUEVOS COLORES! Inspirados en la paleta Índigo/Lavanda ---
               backgroundColor: [
-                '#4f46e5', // Índigo (Primario)
-                '#a855f7', // Lavanda (Secundario)
-                '#6366f1', // Variante de Índigo
-                '#c084fc', // Variante de Lavanda
-                '#818cf8', // Variante más clara de Índigo
-                '#d8b4fe', // Variante más clara de Lavanda
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)',
               ],
-              borderColor: '#ffffff', // Borde blanco para separar segmentos
-              borderWidth: 2,
+              borderColor: [ /* ... (colores de borde) ... */ ],
+              borderWidth: 1,
             },
           ],
         });
@@ -69,27 +83,35 @@ const CategoryChart: React.FC = () => {
   }
   
   if (!chartData) {
-    return <IonText color="medium" className="ion-text-center"><p>No hay gastos para mostrar.</p></IonText>;
+    return <IonText color="medium"><p>No hay gastos registrados este mes.</p></IonText>;
   }
 
-  // --- ¡SOLO SE DEVUELVE EL GRÁFICO! ---
-  // Se elimina la lista para un diseño más limpio, como pide el mock-up.
+  // --- ¡AQUÍ ESTÁ EL CAMBIO! ---
+  // Ahora devolvemos el Gráfico Y la Lista
   return (
-    <Doughnut 
-      data={chartData} 
-      options={{
-        plugins: {
-          legend: {
-            position: 'bottom', // Leyenda abajo para mejor distribución
-            labels: {
-              boxWidth: 12,
-              padding: 20,
-            }
-          }
-        }
-      }}
-    />
+    <>
+      {/* 1. El Gráfico (como estaba antes) */}
+      <Doughnut data={chartData} />
+
+      {/* 2. La Lista Detallada (¡Nueva!) */}
+      <IonList lines="full" style={{marginTop: '20px'}}>
+        <IonListHeader>
+          <IonLabel>Desglose de Gastos</IonLabel>
+        </IonListHeader>
+
+        {/* Mapeamos sobre los datos que ya tiene el gráfico */}
+        {chartData.labels.map((label: string, index: number) => (
+          <IonItem key={label}>
+            <IonLabel>{label}</IonLabel>
+            <IonText slot="end" color="danger">
+              {formatCurrency(chartData.datasets[0].data[index])}
+            </IonText>
+          </IonItem>
+        ))}
+      </IonList>
+    </>
   );
+  // --- FIN DEL CAMBIO ---
 };
 
 export default CategoryChart;
