@@ -2,7 +2,7 @@
 
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 
 // 1. Importar el "cerebro" de autenticación
 import { useAuthStore } from './store/authStore';
