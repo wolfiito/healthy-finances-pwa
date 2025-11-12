@@ -68,8 +68,26 @@ const TabCuentas: React.FC = () => {
         
         {!isLoading && !error && (
           <IonList>
-            {accounts.map((account) => (
+            {/* {accounts.map((account) => (
               <IonItem key={account.account_id}>
+                <IonLabel>
+                  <h2>{account.account_name}</h2>
+                  <p>{account.account_type}</p>
+                </IonLabel>
+                <IonText 
+                  slot="end" 
+                  color={parseFloat(account.current_balance) < 0 ? 'danger' : 'success'}
+                >
+                  {formatCurrency(account.current_balance)}
+                </IonText>
+              </IonItem>
+            ))} */}
+            {accounts.map((account) => (
+              <IonItem 
+                key={account.account_id}
+                routerLink={`/accounts/${account.account_id}`} // <-- 1. El enlace
+                detail={true} // <-- 2. Añade la flecha ">" (listo)
+              >
                 <IonLabel>
                   <h2>{account.account_name}</h2>
                   <p>{account.account_type}</p>

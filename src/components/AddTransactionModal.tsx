@@ -13,11 +13,14 @@ import {
   IonInput, 
   IonSelect, 
   IonSelectOption,
-  IonLoading
+  IonLoading,
+  IonSegment,        // <-- ¡NUEVO!
+  IonSegmentButton,  // <-- ¡NUEVO!
+  IonLabel           // <-- ¡NUEVO!
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
-import { useDataStore } from '../store/dataStore'; // Importamos el "gatillo"
+import { useDataStore } from '../store/dataStore';
 
 interface Account {
   account_id: number;
@@ -36,11 +39,17 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
   const [amount, setAmount] = useState<number>();
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [accountId, setAccountId] = useState<number>();
-
+  
   const triggerRefresh = useDataStore((state) => state.triggerRefresh);
-
+  
   useEffect(() => {
     if (isOpen) {
+      // Limpiar el formulario al abrir
+      setDescription('');
+      setAmount(undefined);
+      setAccountId(undefined);
+      setType('expense');
+
       const fetchAccounts = async () => {
         setIsLoadingAccounts(true);
         try {
@@ -71,16 +80,12 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
         amount: amount,
         type: type,
         account_id: accountId,
-        category: type === 'expense' ? 'Gasto' : 'Ingreso'
+        category: type === 'expense' ? 'Gasto' : 'Ingreso' // Categoría simple
       });
-
-      triggerRefresh(); // ¡Dispara el gatillo!
-
-      onDidDismiss(); // Cierra el modal
-      setDescription('');
-      setAmount(undefined);
-      setAccountId(undefined);
-
+      
+      triggerRefresh();
+      onDidDismiss();
+      
     } catch (error) {
       console.error("Error al guardar la transacción", error);
     }
@@ -100,18 +105,25 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonList>
-          <IonItem>
-            <IonSelect 
-              label="Tipo" 
-              value={type} 
-              onIonChange={(e) => setType(e.detail.value)}
-            >
-              <IonSelectOption value="expense">Gasto</IonSelectOption>
-              <IonSelectOption value="income">Ingreso</IonSelectOption>
-            </IonSelect>
-          </IonItem>
+        
+        {/* --- ¡AQUÍ ESTÁ EL CAMBIO! --- */}
+        {/* Reemplazamos el IonSelect por un IonSegment */}
+        <IonSegment 
+          value={type} 
+          onIonChange={(e) => setType(e.detail.value as 'expense' | 'income')}
+          color="tertiary"
+          style={{ marginBottom: '16px' }}
+        >
+          <IonSegmentButton value="expense">
+            <IonLabel>Gasto</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="income">
+            <IonLabel>Ingreso</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+        {/* --- FIN DEL CAMBIO --- */}
 
+        <IonList>
           <IonItem>
             <IonInput 
               label="Descripción" 
@@ -120,7 +132,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
               onIonInput={(e) => setDescription(e.detail.value!)}
             />
           </IonItem>
-
+          
           <IonItem>
             <IonInput 
               label="Monto" 
@@ -137,6 +149,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
               label="Cuenta" 
               value={accountId}
               onIonChange={(e) => setAccountId(e.detail.value)}
+              placeholder="Seleccionar Cuenta"
             >
               {accounts.map(account => (
                 <IonSelectOption key={account.account_id} value={account.account_id}>

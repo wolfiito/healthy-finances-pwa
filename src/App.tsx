@@ -2,10 +2,11 @@
 
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Route, Redirect } from 'react-router-dom';
+import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
 
 // 1. Importar el "cerebro" de autenticación
 import { useAuthStore } from './store/authStore';
+import AccountDetail from './pages/AccountDetail';
 
 // 2. Importar nuestras páginas
 import Login from './pages/Login';
@@ -32,7 +33,12 @@ function App() {
             }}
           />
           {/* --- FIN DEL ARREGLO --- */}
-          
+          <Route
+            path="/accounts/:id"
+            render={() => {
+              return isAuthenticated ? <AccountDetail /> : <Redirect to="/login" />;
+            }}
+          />    
           {/* Ruta por defecto */}
           <Route exact path="/">
             <Redirect to="/login" />

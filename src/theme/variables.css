@@ -1,56 +1,126 @@
-/* En: src/theme/variables.css (al final) */
+/* En: src/theme/variables.css */
 
+/* --- 1. MODO CLARO (LIGHT MODE) POR DEFECTO --- */
+:root {
+  /** Colores Base de Texto y Fondo **/
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-background-color: #f4f5f8;
+  --ion-background-color-rgb: 244, 245, 248;
+  --ion-text-color: #1a1a1a;
+  --ion-text-color-rgb: 26, 26, 26;
+
+  /* ... (deja aquí las variables de --ion-color-step-X que vienen por defecto) ... */
+  --ion-color-step-50: #e8e9ec;
+  --ion-color-step-100: #dcdde0;
+  /* ... etc ... */
+
+
+  /* --- 2. NUESTRA PALETA "MATE" --- */
+
+  /** Color Primario: Verde Mate (Salvia) **/
+  --ion-color-primary: #81b29a;
+  --ion-color-primary-rgb: 129, 178, 154;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-primary-shade: #719d88;
+  --ion-color-primary-tint: #8db9a4;
+
+  /** Color Secundario: Rosa Mate (Salmón) **/
+  --ion-color-secondary: #e07a5f;
+  --ion-color-secondary-rgb: 224, 122, 95;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-shade: #c56b53;
+  --ion-color-secondary-tint: #e3876e;
+
+  /** Color Terciario: Acento Azul Suave **/
+  --ion-color-tertiary: #60a5fa;
+  --ion-color-tertiary-rgb: 96, 165, 250;
+  --ion-color-tertiary-contrast: #000000;
+  --ion-color-tertiary-shade: #5491dc;
+  --ion-color-tertiary-tint: #6faefb;
+  
+  /* ... (deja el resto: success, warning, danger, medium, dark) ... */
+}
+
+
+/* --- 3. MODO OSCURO (DARK MODE) --- */
 /*
-  Usamos 'ion-card.card-hero' para ser más específicos
-  que el estilo por defecto 'ion-card'.
+  Ionic aplica automáticamente esta regla cuando el 
+  teléfono está en Modo Oscuro.
+*/
+@media (prefers-color-scheme: dark) {
+  body {
+    /* Colores Base Oscuros */
+    --ion-background-color: #121212;
+    --ion-background-color-rgb: 18, 18, 18;
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    /* ... (deja aquí las variables --ion-color-step-X oscuras) ... */
+    --ion-color-step-50: #1e1e1e;
+    --ion-color-step-100: #2a2a2a;
+    /* ... etc ... */
+
+
+    /* --- 4. PALETA "MATE" PARA MODO OSCURO --- */
+    /* (Usamos tonos más brillantes para que resalten) */
+
+    /** Primario: Verde Menta Brillante **/
+    --ion-color-primary: #a7d7c5;
+    --ion-color-primary-rgb: 167, 215, 197;
+    --ion-color-primary-contrast: #000000;
+    --ion-color-primary-contrast-rgb: 0, 0, 0;
+    --ion-color-primary-shade: #93bcae;
+    --ion-color-primary-tint: #b0dacc;
+
+    /** Secundario: Rosa Salmón Brillante **/
+    --ion-color-secondary: #f29e85;
+    --ion-color-secondary-rgb: 242, 158, 133;
+    --ion-color-secondary-contrast: #000000;
+    --ion-color-secondary-shade: #d58b74;
+    --ion-color-secondary-tint: #f3a88f;
+
+    /** Terciario: Acento Azul Brillante **/
+    --ion-color-tertiary: #8ec3ff;
+    --ion-color-tertiary-rgb: 142, 195, 255;
+    --ion-color-tertiary-contrast: #000000;
+    --ion-color-tertiary-shade: #7daadb;
+    --ion-color-tertiary-tint: #99c7ff;
+  }
+}
+
+
+/* --- 5. NUESTROS ESTILOS PERSONALIZADOS (Se quedan igual) --- */
+
+/* Tarjeta de Saldo "Hero" 
+   ¡Ahora usará el gradiente de Rosa Mate a Verde Mate!
 */
 ion-card.card-hero {
-    /*
-      Usamos !important. Esto es una "mala práctica" en CSS normal,
-      pero al pelear contra un framework como Ionic, a veces es necesario
-      para anular sus variables por defecto.
-    */
-    --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary)) !important;
-    --color: #ffffff !important;
-    
-    text-align: center;
-    box-shadow: none;
-    border-radius: 16px;
-  }
-  
-  /* Estas reglas ya deberían funcionar, pero las reforzamos */
-  .card-hero h1 {
-    color: #ffffff; /* Forzar blanco */
-    font-size: 2.8em;
-    font-weight: 700;
-    margin-top: 0;
-    margin-bottom: 8px;
-  }
-  
-  .card-hero ion-card-title {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1em;
-    font-weight: 500;
-  }
+  --background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-primary)) !important;
+  --color: #ffffff !important;
+  text-align: center;
+  box-shadow: none;
+  border-radius: 16px;
+}
+.card-hero h1 {
+  color: inherit;
+  font-size: 2.8em;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+.card-hero ion-card-title {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1em;
+  font-weight: 500;
+}
 
-
-  ion-tab-bar {
-    /* Cambiamos la posición 'bottom' por defecto.
-      Usamos calc() para sumar:
-      1. La variable de área segura (para iPhone)
-      2. Nuestro margen deseado (ej. 10px)
-    */
-    bottom: calc(var(--ion-safe-area-bottom, 0px) + 10px);
-    
-    /* También necesitamos un pequeño margen a los lados
-      para que "flote" y se vea mejor.
-    */
-    margin-left: 10px;
-    margin-right: 10px;
-    
-    /* Bordes redondeados para el look "flotante" */
-    border-radius: 16px;
-  
-    /* (Opcional) Añadir una sombra sutil */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+/* Barra de Pestañas "Flotante" */
+ion-tab-bar {
+  bottom: calc(var(--ion-safe-area-bottom, 0px) + 10px);
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
