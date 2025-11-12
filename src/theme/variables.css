@@ -6,8 +6,8 @@
   --ion-color-light: #f4f5f8;
   --ion-background-color: #f4f5f8;
   --ion-text-color: #1a1a1a;
-
-  /* ... (deja aquí las variables de --ion-color-step-X que vienen por defecto) ... */
+  --ion-text-color-rgb: 26, 26, 26;
+  
   --ion-color-step-50: #e8e9ec;
   --ion-color-step-100: #dcdde0;
   --ion-color-step-150: #d0d1d4;
@@ -29,31 +29,30 @@
   --ion-color-step-950: #101112;
 
 
-  /* --- 2. NUESTRA PALETA "NEON" --- */
+  /* --- 2. PALETA DE COLORES "BÁSICA" (Ionic Default) --- */
 
-  /** Color Primario: Fucsia (Neon) **/
-  --ion-color-primary: #ec4899;
-  --ion-color-primary-rgb: 236, 72, 153;
+  /** Color Primario: Azul Ionic **/
+  --ion-color-primary: #3880ff;
+  --ion-color-primary-rgb: 56, 128, 255;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #d03f87;
-  --ion-color-primary-tint: #ee5aa3;
+  --ion-color-primary-shade: #3171e0;
+  --ion-color-primary-tint: #4c8dff;
 
-  /** Color Secundario: Cian (Neon) **/
-  --ion-color-secondary: #22d3ee;
-  --ion-color-secondary-rgb: 34, 211, 238;
-  --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-shade: #1eb8d0;
-  --ion-color-secondary-tint: #38d6ee;
+  /** Color Secundario: Azul Claro Ionic **/
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-secondary-rgb: 61, 194, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-shade: #36abe0;
+  --ion-color-secondary-tint: #50c8ff;
 
-  /** Color Terciario: (Lo dejamos como el azul por defecto) **/
+  /** Color Terciario: Púrpura Ionic **/
   --ion-color-tertiary: #5260ff;
-  --ion-color-terciary-rgb: 82, 96, 255;
-  --ion-color-terciary-contrast: #ffffff;
-  --ion-color-terciary-shade: #4854e0;
-  --ion-color-terciary-tint: #6370ff;
-
-  /** (El resto se quedan igual) **/
+  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-shade: #4854e0;
+  --ion-color-tertiary-tint: #6370ff;
+  
   --ion-color-success: #2dd36f;
   --ion-color-warning: #ffc409;
   --ion-color-danger: #eb445a;
@@ -63,6 +62,10 @@
 
 
 /* --- 3. MODO OSCURO (DARK MODE) --- */
+/*
+  Esta clase '.dark' es la que aplica nuestro
+  themeStore (cerebro) al <body>
+*/
 .dark {
   /** Colores Base Oscuros **/
   --ion-background-color: #121212;
@@ -70,37 +73,56 @@
   --ion-text-color: #ffffff;
   --ion-text-color-rgb: 255, 255, 255;
 
-  /* ... (deja aquí las variables --ion-color-step-X oscuras) ... */
   --ion-color-step-50: #1e1e1e;
   --ion-color-step-100: #2a2a2a;
-  /* ... etc ... */
+  --ion-color-step-150: #363636;
+  --ion-color-step-200: #414141;
+  --ion-color-step-250: #4d4d4d;
+  --ion-color-step-300: #595959;
+  --ion-color-step-350: #656565;
+  --ion-color-step-400: #717171;
+  --ion-color-step-450: #7d7d7d;
+  --ion-color-step-500: #898989;
+  --ion-color-step-550: #949494;
+  --ion-color-step-600: #a0a0a0;
+  --ion-color-step-650: #acacac;
+  --ion-color-step-700: #b8b8b8;
+  --ion-color-step-750: #c4c4c4;
+  --ion-color-step-800: #d0d0d0;
+  --ion-color-step-850: #dbdbdb;
+  --ion-color-step-900: #e7e7e7;
+  --ion-color-step-950: #f3f3f3;
 
-  /* --- 4. PALETA "NEON" PARA MODO OSCURO --- */
+  /* --- 4. PALETA "BÁSICA" PARA MODO OSCURO --- */
 
-  /** Primario: Fucsia (Neon) **/
-  --ion-color-primary: #ec4899;
-  --ion-color-primary-rgb: 236, 72, 153;
+  /** Primario: Azul Claro **/
+  --ion-color-primary: #428cff;
+  --ion-color-primary-rgb: 66, 140, 255;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #d03f87;
-  --ion-color-primary-tint: #ee5aa3;
+  --ion-color-primary-shade: #3a7be0;
+  --ion-color-primary-tint: #5598ff;
 
-  /** Secundario: Cian (Neon) **/
-  --ion-color-secondary: #22d3ee;
-  --ion-color-secondary-rgb: 34, 211, 238;
-  --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-shade: #1eb8d0;
-  --ion-color-tint: #38d6ee;
+  /** Secundario: Cian Claro **/
+  --ion-color-secondary: #50c8ff;
+  --ion-color-secondary-rgb: 80, 200, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-shade: #46b0e0;
+  --ion-color-secondary-tint: #62ceff;
 
-  /** Terciario: (Lo dejamos como el azul por defecto) **/
-  --ion-color-terciary: #5260ff;
+  /** Terciario: Púrpura Claro **/
+  --ion-color-tertiary: #6a64ff;
+  --ion-color-tertiary-rgb: 106, 100, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-shade: #5d58e0;
+  --ion-color-tertiary-tint: #7974ff;
 }
 
 
-/* --- 5. NUESTROS ESTILOS PERSONALIZADOS --- */
+/* --- 5. NUESTROS ESTILOS PERSONALIZADOS (Se quedan) --- */
 
 /* Tarjeta de Saldo "Hero" 
-   ¡Ahora usará el gradiente Fucsia/Cian!
+   ¡Ahora usará el gradiente Azul/Púrpura por defecto!
 */
 ion-card.card-hero {
   --background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-primary)) !important;
@@ -131,17 +153,10 @@ ion-tab-bar {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* --- ¡ARREGLO PARA DARK MODE! --- */
-/*
-  Esto le da a TODAS las tarjetas un fondo 
-  ligeramente más claro en modo oscuro,
-  para que "floten" sobre el fondo.
-*/
+/* Arreglo para que las Tarjetas floten en Modo Oscuro */
 .dark ion-card {
   --background: var(--ion-color-step-50, #1e1e1e);
 }
-
-/* (Sobrescribimos la tarjeta Hero para que mantenga su gradiente) */
 .dark ion-card.card-hero {
   --background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-primary)) !important;
 }
