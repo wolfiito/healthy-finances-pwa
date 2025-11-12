@@ -58,7 +58,7 @@ const TabCuentas: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary"> {/* <-- ¡AÑADE ESTO! */}
           <IonTitle>Cuentas y Deudas</IonTitle>
         </IonToolbar>
       </IonHeader>

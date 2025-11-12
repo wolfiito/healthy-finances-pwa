@@ -1,99 +1,106 @@
-/* En: src/theme/variables.css */
+/* En: src/theme/variables.css (Reemplazar TODO) */
 
 /* --- 1. MODO CLARO (LIGHT MODE) POR DEFECTO --- */
 :root {
-  /** Colores Base de Texto y Fondo **/
+  /** Colores Base de Texto y Fondo (Gris claro) **/
   --ion-color-light: #f4f5f8;
-  --ion-color-light-rgb: 244, 245, 248;
   --ion-background-color: #f4f5f8;
-  --ion-background-color-rgb: 244, 245, 248;
   --ion-text-color: #1a1a1a;
-  --ion-text-color-rgb: 26, 26, 26;
 
   /* ... (deja aquí las variables de --ion-color-step-X que vienen por defecto) ... */
   --ion-color-step-50: #e8e9ec;
   --ion-color-step-100: #dcdde0;
-  /* ... etc ... */
+  --ion-color-step-150: #d0d1d4;
+  --ion-color-step-200: #c4c5c8;
+  --ion-color-step-250: #b8b9bb;
+  --ion-color-step-300: #acadaf;
+  --ion-color-step-350: #a0a1a3;
+  --ion-color-step-400: #949597;
+  --ion-color-step-450: #88898b;
+  --ion-color-step-500: #7c7d7f;
+  --ion-color-step-550: #707173;
+  --ion-color-step-600: #646567;
+  --ion-color-step-650: #58595a;
+  --ion-color-step-700: #4c4d4e;
+  --ion-color-step-750: #404142;
+  --ion-color-step-800: #343536;
+  --ion-color-step-850: #28292a;
+  --ion-color-step-900: #1c1d1e;
+  --ion-color-step-950: #101112;
 
 
-  /* --- 2. NUESTRA PALETA "MATE" --- */
+  /* --- 2. NUESTRA PALETA "NEON" --- */
 
-  /** Color Primario: Verde Mate (Salvia) **/
-  --ion-color-primary: #81b29a;
-  --ion-color-primary-rgb: 129, 178, 154;
-  --ion-color-primary-contrast: #000000;
-  --ion-color-primary-contrast-rgb: 0, 0, 0;
-  --ion-color-primary-shade: #719d88;
-  --ion-color-primary-tint: #8db9a4;
+  /** Color Primario: Fucsia (Neon) **/
+  --ion-color-primary: #ec4899;
+  --ion-color-primary-rgb: 236, 72, 153;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #d03f87;
+  --ion-color-primary-tint: #ee5aa3;
 
-  /** Color Secundario: Rosa Mate (Salmón) **/
-  --ion-color-secondary: #e07a5f;
-  --ion-color-secondary-rgb: 224, 122, 95;
+  /** Color Secundario: Cian (Neon) **/
+  --ion-color-secondary: #22d3ee;
+  --ion-color-secondary-rgb: 34, 211, 238;
   --ion-color-secondary-contrast: #000000;
-  --ion-color-secondary-shade: #c56b53;
-  --ion-color-secondary-tint: #e3876e;
+  --ion-color-secondary-shade: #1eb8d0;
+  --ion-color-secondary-tint: #38d6ee;
 
-  /** Color Terciario: Acento Azul Suave **/
-  --ion-color-tertiary: #60a5fa;
-  --ion-color-tertiary-rgb: 96, 165, 250;
-  --ion-color-tertiary-contrast: #000000;
-  --ion-color-tertiary-shade: #5491dc;
-  --ion-color-tertiary-tint: #6faefb;
-  
-  /* ... (deja el resto: success, warning, danger, medium, dark) ... */
+  /** Color Terciario: (Lo dejamos como el azul por defecto) **/
+  --ion-color-tertiary: #5260ff;
+  --ion-color-terciary-rgb: 82, 96, 255;
+  --ion-color-terciary-contrast: #ffffff;
+  --ion-color-terciary-shade: #4854e0;
+  --ion-color-terciary-tint: #6370ff;
+
+  /** (El resto se quedan igual) **/
+  --ion-color-success: #2dd36f;
+  --ion-color-warning: #ffc409;
+  --ion-color-danger: #eb445a;
+  --ion-color-dark: #222428;
+  --ion-color-medium: #92949c;
 }
 
 
 /* --- 3. MODO OSCURO (DARK MODE) --- */
-/*
-  Ionic aplica automáticamente esta regla cuando el 
-  teléfono está en Modo Oscuro.
-*/
-.dark{
-  
-    /* Colores Base Oscuros */
-    --ion-background-color: #121212;
-    --ion-background-color-rgb: 18, 18, 18;
-    --ion-text-color: #ffffff;
-    --ion-text-color-rgb: 255, 255, 255;
+.dark {
+  /** Colores Base Oscuros **/
+  --ion-background-color: #121212;
+  --ion-background-color-rgb: 18, 18, 18;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
 
-    /* ... (deja aquí las variables --ion-color-step-X oscuras) ... */
-    --ion-color-step-50: #1e1e1e;
-    --ion-color-step-100: #2a2a2a;
-    /* ... etc ... */
+  /* ... (deja aquí las variables --ion-color-step-X oscuras) ... */
+  --ion-color-step-50: #1e1e1e;
+  --ion-color-step-100: #2a2a2a;
+  /* ... etc ... */
 
+  /* --- 4. PALETA "NEON" PARA MODO OSCURO --- */
 
-    /* --- 4. PALETA "MATE" PARA MODO OSCURO --- */
-    /* (Usamos tonos más brillantes para que resalten) */
+  /** Primario: Fucsia (Neon) **/
+  --ion-color-primary: #ec4899;
+  --ion-color-primary-rgb: 236, 72, 153;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #d03f87;
+  --ion-color-primary-tint: #ee5aa3;
 
-    /** Primario: Verde Menta Brillante **/
-    --ion-color-primary: #a7d7c5;
-    --ion-color-primary-rgb: 167, 215, 197;
-    --ion-color-primary-contrast: #000000;
-    --ion-color-primary-contrast-rgb: 0, 0, 0;
-    --ion-color-primary-shade: #93bcae;
-    --ion-color-primary-tint: #b0dacc;
+  /** Secundario: Cian (Neon) **/
+  --ion-color-secondary: #22d3ee;
+  --ion-color-secondary-rgb: 34, 211, 238;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-shade: #1eb8d0;
+  --ion-color-tint: #38d6ee;
 
-    /** Secundario: Rosa Salmón Brillante **/
-    --ion-color-secondary: #f29e85;
-    --ion-color-secondary-rgb: 242, 158, 133;
-    --ion-color-secondary-contrast: #000000;
-    --ion-color-secondary-shade: #d58b74;
-    --ion-color-secondary-tint: #f3a88f;
-
-    /** Terciario: Acento Azul Brillante **/
-    --ion-color-tertiary: #8ec3ff;
-    --ion-color-tertiary-rgb: 142, 195, 255;
-    --ion-color-tertiary-contrast: #000000;
-    --ion-color-tertiary-shade: #7daadb;
-    --ion-color-tertiary-tint: #99c7ff;
+  /** Terciario: (Lo dejamos como el azul por defecto) **/
+  --ion-color-terciary: #5260ff;
 }
 
 
-/* --- 5. NUESTROS ESTILOS PERSONALIZADOS (Se quedan igual) --- */
+/* --- 5. NUESTROS ESTILOS PERSONALIZADOS --- */
 
 /* Tarjeta de Saldo "Hero" 
-   ¡Ahora usará el gradiente de Rosa Mate a Verde Mate!
+   ¡Ahora usará el gradiente Fucsia/Cian!
 */
 ion-card.card-hero {
   --background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-primary)) !important;
@@ -122,4 +129,19 @@ ion-tab-bar {
   margin-right: 10px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* --- ¡ARREGLO PARA DARK MODE! --- */
+/*
+  Esto le da a TODAS las tarjetas un fondo 
+  ligeramente más claro en modo oscuro,
+  para que "floten" sobre el fondo.
+*/
+.dark ion-card {
+  --background: var(--ion-color-step-50, #1e1e1e);
+}
+
+/* (Sobrescribimos la tarjeta Hero para que mantenga su gradiente) */
+.dark ion-card.card-hero {
+  --background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-primary)) !important;
 }

@@ -126,7 +126,7 @@ const TabDashboard: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary"> {/* <-- ¡AÑADE ESTO! */}
           <IonTitle>Resumen</IonTitle>
         </IonToolbar>
       </IonHeader>

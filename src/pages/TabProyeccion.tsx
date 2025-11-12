@@ -119,7 +119,7 @@ const TabProyeccion: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary"> {/* <-- ¡AÑADE ESTO! */}
           <IonTitle>Proyección ({months} Meses)</IonTitle>
         </IonToolbar>
       </IonHeader>

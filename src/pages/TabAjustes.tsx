@@ -63,7 +63,7 @@ const TabAjustes: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary"> {/* <-- ¡AÑADE ESTO! */}
           <IonTitle>Ajustes</IonTitle>
         </IonToolbar>
       </IonHeader>
