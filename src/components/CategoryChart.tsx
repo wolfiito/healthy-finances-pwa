@@ -35,7 +35,9 @@ const darkModeColors = {
 
 const CategoryChart: React.FC<CategoryChartProps> = ({ transactions }) => {
   const [chartData, setChartData] = useState<any>(null);
-  const { isDark } = useThemeStore();
+  const { theme } = useThemeStore();
+  const isDark = theme === 'dark';
+
 
   useEffect(() => {
     // 1. Filtrar solo los gastos (montos negativos)
