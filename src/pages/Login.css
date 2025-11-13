@@ -1,0 +1,73 @@
+
+.login-page {
+  /* Light Mode Palette */
+  --ion-background-color: #f4f5f8;
+  --ion-text-color: #000000;
+  --ion-color-primary: #E91E63;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+}
+
+body.dark .login-page {
+  /* Dark Mode Palette */
+  --ion-background-color: #121212;
+  --ion-text-color: #ffffff;
+  --ion-color-primary: #FF4081; /* Pink for dark mode */
+  --ion-color-primary-contrast: #ffffff;
+  --ion-card-background: #1e1e1e;
+  --ion-item-background: #1e1e1e;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 20px;
+  background: var(--ion-card-background);
+}
+
+.login-icon {
+  font-size: 60px;
+  color: var(--ion-color-primary);
+}
+
+.login-card ion-card-title {
+  color: var(--ion-text-color);
+}
+
+.login-card ion-item {
+  --background: var(--ion-item-background);
+  --highlight-color-focused: var(--ion-color-primary);
+}
+
+body.dark .login-page ion-item ion-icon {
+  color: #ffffff;
+}
+
+/* --- Custom Toggle Style --- */
+
+/* This applies our desired pink color directly to the toggle's handle
+   when it is checked. This is a very specific selector
+   to override Ionic's default blue. */
+.login-page ion-toggle[color="primary"].toggle-checked {
+    --handle-background: var(--ion-color-primary);
+}
+
+/* General toggle styling for our page */
+.login-page ion-toggle {
+    --background: transparent; /* removes the track */
+    --background-checked: transparent; /* removes the track */
+    --handle-background: #000000; /* black handle when off */
+}
+
+/* Ensure light mode also uses the correct pink */
+body.light .login-page ion-toggle[color="primary"].toggle-checked {
+    --handle-background: var(--ion-color-primary);
+}
