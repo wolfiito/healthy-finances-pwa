@@ -32,7 +32,7 @@ import {
     const [originalAmount, setOriginalAmount] = useState<number>();
     const [monthlyPayment, setMonthlyPayment] = useState<number>();
     const [termMonths, setTermMonths] = useState<number>();
-    const [frequency, setFrequency] = useState<'mensual' | 'quincenal'>('mensual');
+    const [frequency, setFrequency] = useState<'monthly' | 'bi-weekly' | 'weekly' | 'yearly' | 'once'>('monthly');
     const [firstDate, setFirstDate] = useState<string>();
   
     const triggerRefresh = useDataStore((state) => state.triggerRefresh);
@@ -133,11 +133,11 @@ import {
                 value={frequency} 
                 onIonChange={(e) => setFrequency(e.detail.value)}
               >
-                <IonSelectOption value="monthtly">Mensual</IonSelectOption>
-                <IonSelectOption value="bi_weekly">Quincenal</IonSelectOption>
-                <IonSelectOption value="weekly">Quincenal</IonSelectOption>
-                <IonSelectOption value="yearly">Quincenal</IonSelectOption>
-                <IonSelectOption value="once">Quincenal</IonSelectOption>
+                <IonSelectOption value="monthly">Mensual</IonSelectOption>
+                <IonSelectOption value="bi-weekly">Quincenal</IonSelectOption>
+                <IonSelectOption value="weekly">Semanal</IonSelectOption>
+                <IonSelectOption value="yearly">Anual</IonSelectOption>
+                <IonSelectOption value="once">Una vez</IonSelectOption>
               </IonSelect>
             </IonItem>
   
