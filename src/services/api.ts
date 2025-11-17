@@ -1,10 +1,11 @@
+// En: src/services/api.ts
+
 import axios from 'axios';
 
 // 1. Tu URL de backend
 const API_URL = 'https://tazcito.pythonanywhere.com';
 
 // 2. Creamos una "instancia" de axios
-// Esto es como tener un Postman pre-configurado
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -12,15 +13,10 @@ const apiClient = axios.create({
   },
 });
 
-// 3. El Interceptor (¡Esta es la magia!)
-// Esto es un "guardia" que intercepta CADA petición
-// antes de que salga.
+// 3. El Interceptor para añadir el token a cada petición
 apiClient.interceptors.request.use(
   (config) => {
-    // Busca el token en el almacenamiento local del navegador
     const token = localStorage.getItem('token');
-    
-    // Si el token existe, lo añade al header 'x-access-token'
     if (token) {
       config.headers['x-access-token'] = token;
     }
@@ -31,5 +27,12 @@ apiClient.interceptors.request.use(
   }
 );
 
-// 4. Exportamos nuestro cliente pre-configurado
+// 4. ¡NUEVO! Funciones específicas de la API
+// Esta es la función que faltaba.
+export const getAccountsSummary = () => {
+  // Simplemente hace una llamada GET al endpoint de resumen de cuentas.
+  return apiClient.get('/api/accounts/summary');
+};
+
+// 5. Exportamos el cliente pre-configurado como default
 export default apiClient;
