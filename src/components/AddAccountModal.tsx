@@ -84,7 +84,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onDidDismiss 
       // Usamos el "contrato" exacto que definiste
       await apiClient.post('/api/accounts/new', {
         name: name,
-        type: 'CREDIT_CARD', // Valor fijo
+        type: 'credit_card', // Valor fijo
         closing_date: closingDay,
         payment_date: paymentDay,
       });
