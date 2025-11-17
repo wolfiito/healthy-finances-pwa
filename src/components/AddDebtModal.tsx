@@ -133,8 +133,11 @@ import {
                 value={frequency} 
                 onIonChange={(e) => setFrequency(e.detail.value)}
               >
-                <IonSelectOption value="mensual">Mensual</IonSelectOption>
-                <IonSelectOption value="quincenal">Quincenal</IonSelectOption>
+                <IonSelectOption value="monthtly">Mensual</IonSelectOption>
+                <IonSelectOption value="bi_weekly">Quincenal</IonSelectOption>
+                <IonSelectOption value="weekly">Quincenal</IonSelectOption>
+                <IonSelectOption value="yearly">Quincenal</IonSelectOption>
+                <IonSelectOption value="once">Quincenal</IonSelectOption>
               </IonSelect>
             </IonItem>
   
