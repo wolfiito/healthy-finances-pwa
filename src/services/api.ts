@@ -34,5 +34,13 @@ export const getAccountsSummary = () => {
   return apiClient.get('/api/accounts/summary');
 };
 
+export const getRules = () => {
+  return apiClient.get('/api/rules/');
+};
+
+export const deleteRule = (ruleId: number) => {
+  return apiClient.delete(`/api/rules/${ruleId}`);
+};
+
 // 5. Exportamos el cliente pre-configurado como default
 export default apiClient;

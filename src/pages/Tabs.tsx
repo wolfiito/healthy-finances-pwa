@@ -12,12 +12,15 @@ import {
 } from '@ionic/react';
 import { Redirect, Route } from 'react-router-dom';
 // Importamos todos los íconos que usará el menú
-import { home, wallet, settings, addCircle, trendingUp, close, cash, card, repeat, speedometer } from 'ionicons/icons'; 
+import { home, wallet, settings, addCircle, trendingUp, close, cash, card, repeat, speedometer, eye } from 'ionicons/icons';
 
 import TabDashboard from './TabDashboard';
 import TabCuentas from './TabCuentas';
 import TabAjustes from './TabAjustes';
 import TabProyeccion from './TabProyeccion';
+import TabVer from './TabVer';
+import TabReglasFijas from './TabReglasFijas';
+
 
 // Importar TODOS los modales
 import AddTransactionModal from '../components/AddTransactionModal';
@@ -56,7 +59,9 @@ const Tabs: React.FC = () => {
       <IonTabs>
         <IonRouterOutlet>
           <Route exact path="/app/dashboard" component={TabDashboard} />
+          <Route exact path="/app/ver" component={TabVer} />
           <Route exact path="/app/cuentas" component={TabCuentas} />
+          <Route exact path="/app/reglas-fijas" component={TabReglasFijas} />
           <Route exact path="/app/proyeccion" component={TabProyeccion} />
           <Route exact path="/app/ajustes" component={TabAjustes} />
           <Route exact path="/app">
@@ -69,9 +74,9 @@ const Tabs: React.FC = () => {
             <IonIcon icon={home} />
             <IonLabel>Resumen</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="cuentas" href="/app/cuentas">
-            <IonIcon icon={wallet} />
-            <IonLabel>Cuentas</IonLabel>
+          <IonTabButton tab="ver" href="/app/ver">
+            <IonIcon icon={eye} />
+            <IonLabel>Ver</IonLabel>
           </IonTabButton>
           <IonTabButton tab="add" onClick={() => setShowActionSheet(true)}>
             <IonIcon icon={addCircle} />
