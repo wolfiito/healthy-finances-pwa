@@ -12,7 +12,7 @@ import {
 } from '@ionic/react';
 import { Redirect, Route } from 'react-router-dom';
 // Importamos todos los íconos que usará el menú
-import { home, wallet, settings, addCircle, trendingUp, close, cash, card, repeat, speedometer, eye } from 'ionicons/icons';
+import { home, settings, addCircle, trendingUp, close, cash, card, repeat, speedometer, eye } from 'ionicons/icons';
 
 import TabDashboard from './TabDashboard';
 import TabCuentas from './TabCuentas';
