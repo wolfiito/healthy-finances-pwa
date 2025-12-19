@@ -15,19 +15,7 @@ export default defineConfig({
       manifest: {
         name: 'Healthy Finances',
         short_name: 'Finances',
-        theme_color: '#ffffff',
-        icons: [
-          {
-            src: '/icons/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/icons/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+        description: 'Control de gastos y proyección'
       }
     })
   ],

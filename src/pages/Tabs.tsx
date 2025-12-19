@@ -55,8 +55,10 @@ const Tabs: React.FC = () => {
       </div>
 
       {/* Barra de Navegación (Sigue igual, fija abajo) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-16 z-50 pb-safe">
-        <div className="flex justify-around items-center h-full">
+      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-auto z-50 pb-safe pt-1">
+        
+        {/* Contenedor interno con altura fija para los botones (64px/4rem) */}
+        <div className="flex justify-around items-center h-16 w-full">
           
           <Link to="/app/dashboard" className={navBtnClass(isActive('/dashboard'))}>
             <HiHome className={`w-6 h-6 mb-1 ${isActive('/dashboard') ? 'drop-shadow-sm' : ''}`} />
