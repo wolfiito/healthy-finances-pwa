@@ -49,8 +49,8 @@ const Tabs: React.FC = () => {
       </div>
 
       {/* 2. Barra de Navegación MANUAL (Sin depender de btm-nav) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-16 z-50 pb-safe">
-        <div className="flex justify-around items-center h-full">
+      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-auto min-h-[4rem] z-50 pb-safe">
+        <div className="flex justify-around items-center h-16">
           
           <Link to="/app/dashboard" className={navBtnClass(isActive('/dashboard'))}>
             <HiHome className={`w-6 h-6 mb-1 ${isActive('/dashboard') ? 'drop-shadow-sm' : ''}`} />

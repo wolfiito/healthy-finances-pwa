@@ -120,11 +120,14 @@ const TabDashboard: React.FC = () => {
     <div className="min-h-screen bg-base-200 pb-24 font-sans">
       
       {/* 1. Header con Balance Principal */}
-      <div className="bg-gradient-to-b from-primary to-primary-focus pt-12 pb-20 px-6 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+      {/* OUTER DIV: Tiene el fondo y protege el área segura (Notch) */}
+      <div className="bg-gradient-to-b from-primary to-primary-focus pt-safe pb-20 px-6 rounded-b-[2.5rem] shadow-xl relative overflow-hidden"> 
+         
          {/* Decoración de fondo */}
          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
-         <div className="text-center text-primary-content relative z-10">
+         {/* INNER CONTENT: Agregamos 'mt-12' para bajar el texto y que no pegue con la cámara */}
+         <div className="text-center text-primary-content relative z-10 mt-12">
             <h2 className="text-sm font-medium opacity-80 uppercase tracking-widest mb-2">Saldo Total</h2>
             <h1 className="text-5xl font-black tracking-tight drop-shadow-sm">
               {balance !== null ? formatCurrency(balance) : '$0.00'}

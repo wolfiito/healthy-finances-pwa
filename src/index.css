@@ -84,3 +84,25 @@
       scrollbar-width: none;  /* Firefox */
     }
   }
+
+  @layer utilities {
+    /* Padding Top Safe (Para el Notch/Cámara) */
+    .pt-safe {
+      padding-top: env(safe-area-inset-top);
+    }
+    
+    /* Padding Bottom Safe (Para la barra de inicio en iPhone X+) */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* Margen Bottom Safe (Útil a veces) */
+    .mb-safe {
+      margin-bottom: env(safe-area-inset-bottom);
+    }
+    
+    /* Altura mínima segura */
+    .min-h-safe {
+      min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+  }

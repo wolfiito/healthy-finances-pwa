@@ -63,8 +63,11 @@ const TabCuentas: React.FC = () => {
     <div className="min-h-screen bg-base-200 pb-24 font-sans relative">
       
       {/* 1. Encabezado */}
-      <div className="bg-base-100 pt-10 pb-6 px-6 shadow-sm border-b border-base-300">
-        <div className="flex justify-between items-center">
+      {/* OUTER DIV: Fondo y Safe Area */}
+      <div className="bg-base-100 pt-safe pb-6 px-6 shadow-sm border-b border-base-300">
+        
+        {/* INNER DIV: Agregamos 'mt-4' para separar el título del borde superior */}
+        <div className="flex justify-between items-center mt-4">
           <div>
             <h1 className="text-2xl font-black text-base-content tracking-tight">Mis Cuentas</h1>
             <p className="text-sm text-base-content/60">Gestiona tus tarjetas y efectivo</p>
