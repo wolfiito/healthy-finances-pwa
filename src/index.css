@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root {
+    /* Esto hace que el fondo detrás del scroll sea del color de tu tema (base-200) */
+    background-color: var(--fallback-b2,oklch(var(--b2)/1));
+  }
 /* --- UTILIDADES PERSONALIZADAS --- */
 @layer utilities {
   /* Ocultar scrollbar */
