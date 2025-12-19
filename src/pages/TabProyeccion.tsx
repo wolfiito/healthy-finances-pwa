@@ -39,18 +39,16 @@ const TabProyeccion: React.FC = () => {
   
   const { refreshKey } = useDataStore();
 
-  // 1. Detectar Tema Dinámicamente (Para que el gráfico cambie de color solo)
+  // 1. Detectar Tema Dinámicamente
   useEffect(() => {
     const checkTheme = () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      // Si el tema es explícitamente dark, o si es null (sistema) y el sistema es dark
       setIsDark(currentTheme === 'dark' || (currentTheme === null && systemDark));
     };
 
     checkTheme();
     
-    // Escuchar cambios en el atributo data-theme
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     
@@ -69,12 +67,11 @@ const TabProyeccion: React.FC = () => {
     });
 
     // --- COLORES DEL TEMA RAINBOW ---
-    // Dark: Verde Neón (#10b981 - Emerald 500)
-    // Light: Rosa Chicle (#db2777 - Pink 600)
+    // Dark: Verde Neón (#10b981) | Light: Rosa Chicle (#db2777)
     const lineColor = isDark ? '#10b981' : '#db2777'; 
     const fillColor = isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(219, 39, 119, 0.15)';
-    const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
+    
+    // Eliminamos gridColor y textColor para que TS no marque error
 
     setChartData({
       labels: labels,
@@ -86,8 +83,8 @@ const TabProyeccion: React.FC = () => {
           borderColor: lineColor,
           backgroundColor: fillColor,
           borderWidth: 3,
-          tension: 0.4, // Curva suave
-          pointRadius: 0, // Sin puntos para que se vea más limpio
+          tension: 0.4,
+          pointRadius: 0,
           pointHitRadius: 20
         }
       ]
@@ -106,7 +103,6 @@ const TabProyeccion: React.FC = () => {
       setError(null);
       const response = await apiClient.get(`/api/projection?months_ahead=${months}`);
       setProjection(response.data);
-      // Pasamos los datos a la función de gráfico, que ahora usará el estado isDark actualizado
       prepareChartData(response.data.start_balance, response.data.simulation_log);
       
     } catch (err: any) {
@@ -116,7 +112,6 @@ const TabProyeccion: React.FC = () => {
     }
   };
   
-  // Recargar si cambia la data o si cambia el tema (isDark)
   useEffect(() => {
     if (projection) {
       prepareChartData(projection.start_balance, projection.simulation_log);
@@ -189,7 +184,6 @@ const TabProyeccion: React.FC = () => {
                  <div className="text-xs uppercase text-base-content/50 font-bold mb-1">Saldo Actual</div>
                  <div className="text-lg font-bold">{formatCurrency(projection.start_balance)}</div>
                </div>
-               {/* Usamos bg-primary y text-primary-content para que se adapte al Rosa/Verde */}
                <div className="card bg-primary text-primary-content shadow-lg p-4 shadow-primary/30">
                  <div className="text-xs uppercase opacity-70 font-bold mb-1">Saldo Futuro</div>
                  <div className="text-lg font-bold">{formatCurrency(projection.projected_balance_end)}</div>
@@ -210,8 +204,8 @@ const TabProyeccion: React.FC = () => {
                         scales: { 
                           x: { display: false },
                           y: { 
-                            grid: { display: false }, // Sin rejilla
-                            ticks: { display: false } // Sin números en eje Y para limpieza
+                            grid: { display: false },
+                            ticks: { display: false }
                           } 
                         },
                         elements: { point: { radius: 0 } }
