@@ -65,11 +65,8 @@ const Login: React.FC = () => {
                 </svg>
               </div>
               <h1 className="text-3xl font-black tracking-tight text-base-content">
-                Healthy Finances
+                Bienvenido
               </h1>
-              <p className="mt-2 text-sm text-base-content/60 font-medium">
-                Tu libertad financiera comienza aquí.
-              </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">

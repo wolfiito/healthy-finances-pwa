@@ -13,7 +13,7 @@ export default defineConfig({
         enabled: false 
       },
       manifest: {
-        name: 'Healthy Finances',
+        name: 'Sanas Finanzas',
         short_name: 'Finances',
         description: 'Control de gastos y proyección',
         theme_color: '#000000', // Esto es el fallback
