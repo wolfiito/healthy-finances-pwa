@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import { HiXMark, HiCalendarDays, HiArrowPath } from 'react-icons/hi2';
+import { HiXMark, HiArrowPath } from 'react-icons/hi2';
 
 interface AddRuleModalProps {
   isOpen: boolean;
