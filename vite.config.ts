@@ -15,7 +15,9 @@ export default defineConfig({
       manifest: {
         name: 'Healthy Finances',
         short_name: 'Finances',
-        description: 'Control de gastos y proyección'
+        description: 'Control de gastos y proyección',
+        theme_color: '#000000', // Esto es el fallback
+        background_color: '#1a1a1a',
       }
     })
   ],
