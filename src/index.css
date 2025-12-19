@@ -1,108 +1,85 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* TEMA OSCURO (Tu primer bloque - Forest Style) */
-@plugin "daisyui/theme" {
-  name: "dark";           /* <--- Renombrado a "dark" para que React lo detecte */
-  default: false;
-  prefersdark: true;      /* Se activa con la configuración del sistema */
-  color-scheme: "dark";
-  --color-base-100: oklch(20.84% 0.008 17.911);
-  --color-base-200: oklch(18.522% 0.007 17.911);
-  --color-base-300: oklch(16.203% 0.007 17.911);
-  --color-base-content: oklch(83.768% 0.001 17.911);
-  --color-primary: oklch(68.628% 0.185 148.958); /* Verde vibrante */
-  --color-primary-content: oklch(0% 0 0);
-  --color-secondary: oklch(69.776% 0.135 168.327);
-  --color-secondary-content: oklch(13.955% 0.027 168.327);
-  --color-accent: oklch(70.628% 0.119 185.713);
-  --color-accent-content: oklch(14.125% 0.023 185.713);
-  --color-neutral: oklch(30.698% 0.039 171.364);
-  --color-neutral-content: oklch(86.139% 0.007 171.364);
-  --color-info: oklch(72.06% 0.191 231.6);
-  --color-info-content: oklch(0% 0 0);
-  --color-success: oklch(64.8% 0.15 160);
-  --color-success-content: oklch(0% 0 0);
-  --color-warning: oklch(84.71% 0.199 83.87);
-  --color-warning-content: oklch(0% 0 0);
-  --color-error: oklch(71.76% 0.221 22.18);
-  --color-error-content: oklch(0% 0 0);
-  --radius-selector: 1rem;
-  --radius-field: 2rem;       /* Campos muy redondeados */
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
+/* --- UTILIDADES PERSONALIZADAS --- */
+@layer utilities {
+  /* Ocultar scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Safe Areas (Para iPhone Notch/Isla Dinámica) */
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+  .min-h-safe { min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
 }
 
-/* TEMA CLARO (Tu segundo bloque - Estilo Limpio) */
+/* --- TEMA RAINBOW DARK (Verde Bonito) --- */
 @plugin "daisyui/theme" {
-  name: "light";          /* <--- Renombrado a "light" */
-  default: true;          /* Tema por defecto */
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+  
+  --color-base-100: oklch(15% 0.02 240);    /* Fondo Azul Muy Oscuro (Casi negro) */
+  --color-base-200: oklch(12% 0.02 240);    /* Fondo Secundario */
+  --color-base-300: oklch(10% 0.02 240);
+  --color-base-content: oklch(98% 0.01 240);
+  
+  --color-primary: oklch(70% 0.18 150);     /* VERDE MENTA VIBRANTE 💚 */
+  --color-primary-content: oklch(10% 0.1 150);
+  
+  --color-secondary: oklch(65% 0.22 290);   /* Violeta Eléctrico (Toque Rainbow) */
+  --color-secondary-content: oklch(98% 0 0);
+  
+  --color-accent: oklch(80% 0.15 60);       /* Naranja Atardecer */
+  --color-accent-content: oklch(10% 0.05 60);
+  
+  --color-neutral: oklch(25% 0.02 240);
+  --color-neutral-content: oklch(90% 0.01 240);
+  
+  --color-info: oklch(70% 0.15 220);
+  --color-success: oklch(75% 0.18 150);
+  --color-warning: oklch(85% 0.18 85);
+  --color-error: oklch(65% 0.2 25);
+  
+  --radius-selector: 1rem;
+  --radius-field: 1.5rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
+
+/* --- TEMA RAINBOW LIGHT (Rosita Bonito) --- */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(97% 0.014 308.299);
-  --color-base-200: oklch(94% 0.033 307.174);
-  --color-base-300: oklch(90% 0.063 306.703);
-  --color-base-content: oklch(45% 0.187 3.815);
-  --color-primary: oklch(74% 0.16 232.661); /* Azul/Violeta vibrante */
-  --color-primary-content: oklch(29% 0.066 243.157);
-  --color-secondary: oklch(74% 0.238 322.16);
-  --color-secondary-content: oklch(40% 0.153 2.432);
-  --color-accent: oklch(0% 0 0);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(59% 0.249 0.584);
-  --color-neutral-content: oklch(97% 0.014 308.299);
-  --color-info: oklch(68% 0.169 237.323);
-  --color-info-content: oklch(97% 0.013 236.62);
-  --color-success: oklch(72% 0.219 149.579);
-  --color-success-content: oklch(98% 0.018 155.826);
-  --color-warning: oklch(79% 0.184 86.047);
-  --color-warning-content: oklch(98% 0.026 102.212);
-  --color-error: oklch(63% 0.237 25.331);
-  --color-error-content: oklch(97% 0.013 17.38);
+  
+  --color-base-100: oklch(99% 0 0);         /* Blanco Puro */
+  --color-base-200: oklch(97% 0.01 320);    /* Blanco con tinte rosita muy sutil */
+  --color-base-300: oklch(94% 0.02 320);
+  --color-base-content: oklch(25% 0.05 280);
+  
+  --color-primary: oklch(65% 0.25 340);     /* ROSA CHICLE BONITO 💖 */
+  --color-primary-content: oklch(99% 0 0);
+  
+  --color-secondary: oklch(75% 0.15 200);   /* Cian Cielo (Toque Rainbow) */
+  --color-secondary-content: oklch(10% 0.05 200);
+  
+  --color-accent: oklch(85% 0.16 90);       /* Amarillo/Lima */
+  --color-accent-content: oklch(20% 0.1 90);
+  
+  --color-neutral: oklch(90% 0.02 280);
+  --color-neutral-content: oklch(30% 0.05 280);
+  
+  --color-info: oklch(60% 0.15 240);
+  --color-success: oklch(65% 0.18 150);
+  --color-warning: oklch(80% 0.15 80);
+  --color-error: oklch(65% 0.22 25);
+  
   --radius-selector: 1rem;
-  --radius-field: 0.5rem;     /* Campos menos redondeados en light */
+  --radius-field: 1rem;
   --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
   --border: 1px;
-  --depth: 0;
-  --noise: 1;                 /* Textura sutil en light */
 }
-
-@layer utilities {
-    /* Ocultar scrollbar para Chrome, Safari and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    /* Ocultar scrollbar para IE, Edge and Firefox */
-    .no-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
-    }
-  }
-
-  @layer utilities {
-    /* Padding Top Safe (Para el Notch/Cámara) */
-    .pt-safe {
-      padding-top: env(safe-area-inset-top);
-    }
-    
-    /* Padding Bottom Safe (Para la barra de inicio en iPhone X+) */
-    .pb-safe {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    
-    /* Margen Bottom Safe (Útil a veces) */
-    .mb-safe {
-      margin-bottom: env(safe-area-inset-bottom);
-    }
-    
-    /* Altura mínima segura */
-    .min-h-safe {
-      min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    }
-  }
