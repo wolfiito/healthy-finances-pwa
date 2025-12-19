@@ -26,27 +26,18 @@ const getIconForEvent = (description: string) => {
   return <HiReceiptPercent className="w-6 h-6" />; 
 };
 
-// --- NUEVO: Helper de Colores del Tema ---
-// Esto asegura que los colores cambien según si estás en modo Dark (Verde) o Light (Rosa)
+// Helper Colores (Rainbow Theme)
 const getColorForEvent = (description: string) => {
   const desc = description.toLowerCase();
-  
-  // Deudas urgentes o Tarjetas -> Error (Suele ser Rojo/Naranja)
   if (desc.includes('tc') || desc.includes('tarjeta') || desc.includes('préstamo')) {
     return 'bg-error/10 text-error';
   }
-  
-  // Prioridades (Casa/Renta) -> Primary (El color principal de tu tema: Rosa o Verde)
   if (desc.includes('renta') || desc.includes('casa')) {
     return 'bg-primary/10 text-primary';
   }
-
-  // Ahorros -> Success (Verde/Teal)
   if (desc.includes('tanda') || desc.includes('ahorro')) {
     return 'bg-success/10 text-success';
   }
-
-  // Otros -> Secondary (El color secundario: Cian o Violeta)
   return 'bg-secondary/10 text-secondary';
 };
 
@@ -78,6 +69,7 @@ const TabDashboard: React.FC = () => {
 
       const transactionsResponse = await apiClient.get('/api/transactions');
       const allTransactions: Transaction[] = transactionsResponse.data;
+      // Asumimos que la API ya los trae ordenados por fecha, si no, habría que hacer un .sort()
       const monthlyTransactions = allTransactions.filter(tx => {
         const txDate = new Date(tx.date);
         return txDate.getMonth() === currentDate.getMonth() &&
@@ -132,12 +124,12 @@ const TabDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="px-4 space-y-6 relative mt-8">
+      <div className="px-4 mt-8 space-y-6 relative z-0">
 
         {/* 2. Tarjeta: Próximos Pagos */}
         <div className="card bg-base-100 shadow-xl border border-base-200">
           <div className="card-body p-3">
-            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-2">
+            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-4">
               📅 Próximos Pagos
             </h3>
             
@@ -148,8 +140,6 @@ const TabDashboard: React.FC = () => {
                 {upcomingEvents.map((event, index) => (
                   <div key={index} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors">
                     
-                    {/* --- AQUI ESTA EL CAMBIO --- */}
-                    {/* Usamos getColorForEvent para decidir el color basado en el tema */}
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getColorForEvent(event.description)}`}>
                       {getIconForEvent(event.description)}
                     </div>
@@ -170,21 +160,24 @@ const TabDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Tarjeta: Movimientos Recientes */}
+        {/* 3. Tarjeta: Últimos Movimientos (SOLO 3) */}
         <div className="card bg-base-100 shadow-xl border border-base-200">
-          <div className="card-body p-3">
-            <div className="flex justify-between items-center mb-2">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-center mb-4">
               <h3 className="card-title text-sm uppercase text-base-content/60 font-bold">
-                💸 Movimientos del Mes
+                💸 Últimos Movimientos
               </h3>
-              <span className="badge badge-sm badge-ghost">{recentTransactions.length}</span>
+              {/* Opcional: Link para ver todos si el usuario quiere */}
+              {/* <span className="text-xs text-primary font-bold cursor-pointer">Ver todos</span> */}
             </div>
 
             {recentTransactions.length === 0 ? (
               <p className="text-sm text-base-content/50 italic text-center py-4">Sin movimientos aún</p>
             ) : (
-              <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar">
-                {recentTransactions.map((tx) => {
+              // SIN Scrollbar, SIN max-height, lista plana
+              <div className="flex flex-col gap-3">
+                {/* AQUI ESTA LA MAGIA: .slice(0, 3) */}
+                {recentTransactions.slice(0, 3).map((tx) => {
                   const isNegative = parseFloat(tx.amount) < 0;
                   return (
                     <div key={tx.id} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors shrink-0">
@@ -211,7 +204,7 @@ const TabDashboard: React.FC = () => {
 
         {/* 4. Tarjeta: Gráfico */}
         <div className="card bg-base-100 shadow-xl border border-base-200 mb-6">
-          <div className="card-body p-3">
+          <div className="card-body p-5">
             <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-2">
               📊 Gastos por Categoría
             </h3>
