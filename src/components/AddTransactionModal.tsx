@@ -1,25 +1,18 @@
-// En: src/components/AddTransactionModal.tsx
-
-import {
-  IonModal, IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
-  IonButtons, IonList, IonItem, IonInput, IonSelect, IonSelectOption,
-  IonLoading, IonNote, IonToggle, IonLabel
-} from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useDataStore } from '../store/dataStore';
 import { getAccountsSummary } from '../services/api';
 import apiClient from '../services/api';
+import { HiXMark } from 'react-icons/hi2';
 
-// --- Interfaces y Constantes ---
 interface Account {
   account_id: number;
   account_name: string;
-  type: 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH'; 
+  account_type: string; // Nota: La API devuelve 'account_type' (snake_case)
 }
 
 interface AddTransactionModalProps {
   isOpen: boolean;
-  onDidDismiss: () => void;
+  onClose: () => void;
 }
 
 const GASTO_CATEGORIES = [
@@ -27,17 +20,16 @@ const GASTO_CATEGORIES = [
   "Transporte", "Oxxo", "Tecnologia", "Otros"
 ];
 
-// --- Componente Principal ---
-const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDidDismiss }) => {
+const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClose }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // --- Estados del Formulario ---
+  // Estados del Formulario
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState<number | string>('');
-  const [accountId, setAccountId] = useState<number | undefined>();
+  const [accountId, setAccountId] = useState<number | string>(''); // string para manejar el select vacio
   const [category, setCategory] = useState<string>('');
   const [showInstallments, setShowInstallments] = useState(false);
   const [installments, setInstallments] = useState<number | string>('');
@@ -48,7 +40,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
     setType('expense');
     setDescription('');
     setAmount('');
-    setAccountId(undefined);
+    setAccountId('');
     setCategory('');
     setShowInstallments(false);
     setInstallments('');
@@ -60,8 +52,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
       resetForm();
       const fetchAccounts = async () => {
         try {
-          const response = await getAccountsSummary(); 
-          setAccounts(response.data); 
+          const response = await getAccountsSummary();
+          setAccounts(response.data);
         } catch (error) {
           console.error("Error al cargar cuentas", error);
           setError("No se pudieron cargar las cuentas.");
@@ -71,114 +63,193 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onDid
     }
   }, [isOpen]);
 
-  const selectedAccount = accounts.find(a => a.account_id === accountId);
+  // Buscar la cuenta seleccionada para validar si es tarjeta de crédito
+  const selectedAccount = accounts.find(a => a.account_id === Number(accountId));
+  const isCreditCard = selectedAccount?.account_type?.toUpperCase() === 'CREDIT_CARD';
 
-  const handleInput = (setter: Function, value: any) => {
-    if (error) setError(null);
-    setter(value);
-  };
-
-  const handleSave = async () => {
-    // --- Validaciones ---
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validaciones
     if (!description.trim()) return setError('La Descripción es requerida.');
-    if (!amount || parseFloat(amount as string) <= 0) return setError('El Monto debe ser un número positivo.');
-    if (!accountId) return setError('Debe seleccionar una Cuenta.');
-    if (type === 'expense' && !category) return setError('La Categoría es requerida para un gasto.');
-    if (showInstallments && (!installments || Number(installments) <= 1)) return setError('Los meses deben ser 2 o más.');
+    if (!amount || Number(amount) <= 0) return setError('Monto inválido.');
+    if (!accountId) return setError('Selecciona una cuenta.');
+    if (type === 'expense' && !category) return setError('Selecciona una categoría.');
+    if (showInstallments && (!installments || Number(installments) <= 1)) return setError('Meses inválidos.');
 
     setError(null);
     setIsLoading(true);
 
-    // --- Construcción del Payload ---
     const payload: any = {
       description,
-      amount: parseFloat(amount as string),
+      amount: Number(amount),
       type: type, 
-      account_id: accountId,
+      account_id: Number(accountId),
     };
+
     if (type === 'expense') {
       payload.category = category;
     }
     
-    if (showInstallments && selectedAccount?.type?.toUpperCase() === 'CREDIT_CARD') {
+    if (showInstallments && isCreditCard) {
       payload.installments = Number(installments);
     }
 
-    // --- Envío a la API ---
     try {
       await apiClient.post('/api/transactions/new', payload);
       triggerRefresh();
-      onDidDismiss();
+      onClose();
     } catch (err: any) {
-      const apiError = err.response?.data?.error || "Error al guardar la transacción";
-      setError(apiError);
-      console.error("Error al guardar", err);
+      setError(err.response?.data?.error || "Error al guardar.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start"><IonButton onClick={onDidDismiss}>Cancelar</IonButton></IonButtons>
-          <IonTitle>Nueva Transacción</IonTitle>
-          <IonButtons slot="end"><IonButton strong={true} onClick={handleSave} disabled={isLoading}>Guardar</IonButton></IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonLoading isOpen={isLoading} message={"Guardando..."}/>
-        <IonList>
-          {error && <IonItem lines="none"><IonNote color="danger" className="ion-text-center" style={{fontWeight: 500}}>{error}</IonNote></IonItem>}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-base-100 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up flex flex-col max-h-[90vh]">
+        
+        {/* Header */}
+        <div className="bg-base-200 px-5 py-4 flex justify-between items-center border-b border-base-300 shrink-0">
+          <h3 className="font-bold text-lg">Nueva Transacción</h3>
+          <button onClick={onClose} className="btn btn-ghost btn-circle btn-sm">
+            <HiXMark className="w-6 h-6" />
+          </button>
+        </div>
 
-          <IonItem>
-            <IonSelect label="Tipo" value={type} onIonChange={(e) => handleInput(setType, e.detail.value)} interface="action-sheet">
-              <IonSelectOption value="expense">Gasto</IonSelectOption>
-              <IonSelectOption value="income">Ingreso</IonSelectOption>
-            </IonSelect>
-          </IonItem>
+        {/* Formulario (Scrollable) */}
+        <div className="overflow-y-auto p-5">
+          <form onSubmit={handleSave} className="space-y-4">
+            
+            {error && (
+              <div className="alert alert-error text-sm py-2 rounded-lg">
+                <span>{error}</span>
+              </div>
+            )}
 
-          <IonItem>
-            <IonInput label="Descripción" labelPlacement="floating" value={description} onIonInput={(e) => handleInput(setDescription, e.detail.value!)} />
-          </IonItem>
+            {/* Tipo (Segmented Control) */}
+            <div className="join w-full grid grid-cols-2">
+              <input 
+                className="join-item btn" 
+                type="radio" 
+                name="type" 
+                aria-label="Gasto"
+                checked={type === 'expense'}
+                onChange={() => setType('expense')}
+              />
+              <input 
+                className="join-item btn" 
+                type="radio" 
+                name="type" 
+                aria-label="Ingreso" 
+                checked={type === 'income'}
+                onChange={() => setType('income')}
+              />
+            </div>
 
-          <IonItem>
-            <IonInput label="Monto" labelPlacement="floating" type="number" inputmode="decimal" value={amount} onIonInput={(e) => handleInput(setAmount, e.detail.value!)} />
-          </IonItem>
+            {/* Descripción */}
+            <div className="form-control">
+              <label className="label py-1"><span className="label-text">Descripción</span></label>
+              <input 
+                type="text" 
+                className="input input-bordered w-full focus:input-primary"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Ej. Supermercado"
+              />
+            </div>
 
-          <IonItem>
-            <IonSelect label="Cuenta" placeholder="Seleccionar cuenta" value={accountId} onIonChange={(e) => handleInput(setAccountId, e.detail.value)} interface="action-sheet">
-              {accounts.map(acc => <IonSelectOption key={acc.account_id} value={acc.account_id}>{acc.account_name}</IonSelectOption>)}
-            </IonSelect>
-          </IonItem>
+            {/* Monto */}
+            <div className="form-control">
+              <label className="label py-1"><span className="label-text">Monto</span></label>
+              <input 
+                type="number" 
+                className="input input-bordered w-full focus:input-primary font-mono"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                inputMode="decimal"
+              />
+            </div>
 
-          {type === 'expense' && (
-            <IonItem>
-              <IonSelect label="Categoría" placeholder="Seleccionar categoría" value={category} onIonChange={(e) => handleInput(setCategory, e.detail.value)} interface="action-sheet">
-                {GASTO_CATEGORIES.map(cat => <IonSelectOption key={cat} value={cat}>{cat}</IonSelectOption>)}
-              </IonSelect>
-            </IonItem>
-          )}
+            {/* Cuenta */}
+            <div className="form-control">
+              <label className="label py-1"><span className="label-text">Cuenta</span></label>
+              <select 
+                className="select select-bordered w-full focus:select-primary"
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+              >
+                <option value="" disabled>Selecciona una cuenta</option>
+                {accounts.map(acc => (
+                  <option key={acc.account_id} value={acc.account_id}>
+                    {acc.account_name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* ¡CORREGIDO! Lógica para Meses Sin Intereses con comprobación insensible a mayúsculas/minúsculas */}
-          {type === 'expense' && selectedAccount?.type?.toUpperCase() === 'CREDIT_CARD' && (
-            <>
-              <IonItem>
-                <IonLabel>¿Es a meses sin intereses?</IonLabel>
-                <IonToggle checked={showInstallments} onIonChange={e => handleInput(setShowInstallments, e.detail.checked)} slot="end" />
-              </IonItem>
-              {showInstallments && (
-                <IonItem>
-                  <IonInput label="Número de Meses" labelPlacement="floating" type="number" inputmode="numeric" value={installments} onIonInput={(e) => handleInput(setInstallments, e.detail.value!)} />
-                </IonItem>
-              )}
-            </>
-          )}
+            {/* Categoría (Solo Gastos) */}
+            {type === 'expense' && (
+              <div className="form-control animate-fade-in">
+                <label className="label py-1"><span className="label-text">Categoría</span></label>
+                <select 
+                  className="select select-bordered w-full focus:select-primary"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="" disabled>Selecciona categoría</option>
+                  {GASTO_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-        </IonList>
-      </IonContent>
-    </IonModal>
+            {/* Meses Sin Intereses (Solo TC y Gastos) */}
+            {type === 'expense' && isCreditCard && (
+              <div className="form-control bg-base-200/50 p-3 rounded-lg animate-fade-in mt-2">
+                <label className="label cursor-pointer justify-start gap-4">
+                  <input 
+                    type="checkbox" 
+                    className="toggle toggle-primary" 
+                    checked={showInstallments} 
+                    onChange={(e) => setShowInstallments(e.target.checked)}
+                  />
+                  <span className="label-text font-medium">¿Es a meses sin intereses?</span>
+                </label>
+
+                {showInstallments && (
+                  <div className="mt-2 animate-fade-in">
+                    <label className="label py-1"><span className="label-text text-xs">Número de mensualidades</span></label>
+                    <input 
+                      type="number" 
+                      className="input input-bordered input-sm w-full"
+                      value={installments}
+                      onChange={(e) => setInstallments(e.target.value)}
+                      placeholder="Ej. 12"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="pt-4">
+              <button 
+                type="submit" 
+                className="btn btn-primary w-full text-lg shadow-lg shadow-primary/20"
+                disabled={isLoading}
+              >
+                {isLoading ? <span className="loading loading-spinner"></span> : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

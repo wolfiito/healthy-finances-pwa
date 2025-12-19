@@ -1,132 +1,85 @@
-// En: src/pages/Tabs.tsx
+import React from 'react';
+import { Switch, Route, Redirect, useLocation, Link } from 'react-router-dom';
 
-import React, { useState } from 'react';
-import { 
-  IonTabs, 
-  IonTabBar, 
-  IonTabButton, 
-  IonIcon, 
-  IonLabel, 
-  IonRouterOutlet,
-  IonActionSheet
-} from '@ionic/react';
-import { Redirect, Route } from 'react-router-dom';
-// Importamos todos los íconos que usará el menú
-import { home, settings, addCircle, trendingUp, close, cash, card, repeat, speedometer, eye } from 'ionicons/icons';
-
+// Importamos tus pantallas
 import TabDashboard from './TabDashboard';
 import TabCuentas from './TabCuentas';
-import TabAjustes from './TabAjustes';
 import TabProyeccion from './TabProyeccion';
-import TabVer from './TabVer';
 import TabReglasFijas from './TabReglasFijas';
+import TabAjustes from './TabAjustes';
 
-
-// Importar TODOS los modales
-import AddTransactionModal from '../components/AddTransactionModal';
-import AddAccountModal from '../components/AddAccountModal';
-import AddRuleModal from '../components/AddRuleModal';
-import AddDebtModal from '../components/AddDebtModal'; // <-- ¡EL NUEVO!
+// Iconos
+import { 
+  HiHome, 
+  HiCreditCard, 
+  HiChartBar, 
+  HiClipboardDocumentList, 
+  HiCog6Tooth 
+} from 'react-icons/hi2';
 
 const Tabs: React.FC = () => {
-  // Un estado para cada modal y uno para el menú
-  const [showActionSheet, setShowActionSheet] = useState(false);
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [showAccountModal, setShowAccountModal] = useState(false);
-  const [showRuleModal, setShowRuleModal] = useState(false);
-  const [showDebtModal, setShowDebtModal] = useState(false); // <-- ¡EL NUEVO!
+  const location = useLocation();
+  const isActive = (path: string) => location.pathname.includes(path);
+
+  // Clase para el botón (Activo vs Inactivo)
+  const navBtnClass = (active: boolean) => `
+    flex flex-col items-center justify-center w-full h-full py-1 
+    transition-all duration-200 active:scale-95
+    ${active 
+      ? 'text-primary' 
+      : 'text-base-content/40 hover:text-base-content/70'
+    }
+  `;
 
   return (
-    <>
-      {/* Definimos todos los modales (estarán ocultos) */}
-      <AddTransactionModal 
-        isOpen={showTransactionModal} 
-        onDidDismiss={() => setShowTransactionModal(false)} 
-      />
-      <AddAccountModal
-        isOpen={showAccountModal}
-        onDidDismiss={() => setShowAccountModal(false)}
-      />
-      <AddRuleModal
-        isOpen={showRuleModal}
-        onDidDismiss={() => setShowRuleModal(false)}
-      />
-      <AddDebtModal
-        isOpen={showDebtModal}
-        onDidDismiss={() => setShowDebtModal(false)}
-      />
-
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/app/dashboard" component={TabDashboard} />
-          <Route exact path="/app/ver" component={TabVer} />
-          <Route exact path="/app/cuentas" component={TabCuentas} />
-          <Route exact path="/app/reglas-fijas" component={TabReglasFijas} />
-          <Route exact path="/app/proyeccion" component={TabProyeccion} />
-          <Route exact path="/app/ajustes" component={TabAjustes} />
+    <div className="flex flex-col h-screen w-full bg-base-200">
+      
+      {/* 1. Área de Contenido (Ocupa todo el espacio disponible) */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20"> 
+        <Switch>
+          <Route path="/app/dashboard" component={TabDashboard} />
+          <Route path="/app/cuentas" component={TabCuentas} />
+          <Route path="/app/proyeccion" component={TabProyeccion} />
+          <Route path="/app/reglas" component={TabReglasFijas} />
+          <Route path="/app/ajustes" component={TabAjustes} />
           <Route exact path="/app">
             <Redirect to="/app/dashboard" />
           </Route>
-        </IonRouterOutlet>
+        </Switch>
+      </div>
 
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="dashboard" href="/app/dashboard">
-            <IonIcon icon={home} />
-            <IonLabel>Resumen</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="ver" href="/app/ver">
-            <IonIcon icon={eye} />
-            <IonLabel>Ver</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="add" onClick={() => setShowActionSheet(true)}>
-            <IonIcon icon={addCircle} />
-            <IonLabel>Añadir</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="proyeccion" href="/app/proyeccion">
-            <IonIcon icon={trendingUp} />
-            <IonLabel>Proyección</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="ajustes" href="/app/ajustes">
-            <IonIcon icon={settings} />
-            <IonLabel>Ajustes</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
+      {/* 2. Barra de Navegación MANUAL (Sin depender de btm-nav) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-16 z-50 pb-safe">
+        <div className="flex justify-around items-center h-full">
+          
+          <Link to="/app/dashboard" className={navBtnClass(isActive('/dashboard'))}>
+            <HiHome className={`w-6 h-6 mb-1 ${isActive('/dashboard') ? 'drop-shadow-sm' : ''}`} />
+            <span className="text-[10px] font-bold tracking-wide">Inicio</span>
+          </Link>
 
-      {/* --- ¡MENÚ DESLIZANTE CON 4 OPCIONES! --- */}
-      <IonActionSheet
-        isOpen={showActionSheet}
-        onDidDismiss={() => setShowActionSheet(false)}
-        header={'¿Qué quieres agregar?'}
-        buttons={[
-          {
-            text: 'Gasto / Ingreso',
-            icon: cash,
-            handler: () => { setShowTransactionModal(true); },
-          },
-          {
-            text: 'Cuenta Nueva (TC, Débito)',
-            icon: card,
-            handler: () => { setShowAccountModal(true); },
-          },
-          {
-            text: 'Regla Fija (Renta, Sueldo)',
-            icon: repeat,
-            handler: () => { setShowRuleModal(true); },
-          },
-          {
-            text: 'Préstamo (Deuda a plazo)',
-            icon: speedometer, // <-- ¡NUEVO BOTÓN!
-            handler: () => { setShowDebtModal(true); },
-          },
-          {
-            text: 'Cancelar',
-            icon: close,
-            role: 'cancel',
-          },
-        ]}
-      />
-    </>
+          <Link to="/app/cuentas" className={navBtnClass(isActive('/cuentas'))}>
+            <HiCreditCard className={`w-6 h-6 mb-1 ${isActive('/cuentas') ? 'drop-shadow-sm' : ''}`} />
+            <span className="text-[10px] font-bold tracking-wide">Cuentas</span>
+          </Link>
+
+          <Link to="/app/proyeccion" className={navBtnClass(isActive('/proyeccion'))}>
+            <HiChartBar className={`w-6 h-6 mb-1 ${isActive('/proyeccion') ? 'drop-shadow-sm' : ''}`} />
+            <span className="text-[10px] font-bold tracking-wide">Futuro</span>
+          </Link>
+
+          <Link to="/app/reglas" className={navBtnClass(isActive('/reglas'))}>
+            <HiClipboardDocumentList className={`w-6 h-6 mb-1 ${isActive('/reglas') ? 'drop-shadow-sm' : ''}`} />
+            <span className="text-[10px] font-bold tracking-wide">Reglas</span>
+          </Link>
+
+          <Link to="/app/ajustes" className={navBtnClass(isActive('/ajustes'))}>
+            <HiCog6Tooth className={`w-6 h-6 mb-1 ${isActive('/ajustes') ? 'drop-shadow-sm' : ''}`} />
+            <span className="text-[10px] font-bold tracking-wide">Ajustes</span>
+          </Link>
+
+        </div>
+      </div>
+    </div>
   );
 };
 

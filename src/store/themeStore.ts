@@ -1,7 +1,5 @@
-// En: src/store/themeStore.ts
 import { create } from 'zustand';
 
-// Definimos los posibles temas
 type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeState {
@@ -10,49 +8,42 @@ interface ThemeState {
   setTheme: (theme: Theme) => void;
 }
 
-/**
- * Helper para aplicar el tema al body
- */
-const applyTheme = (theme: Theme) => {
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  if (theme === 'dark' || (theme === 'system' && prefersDark)) {
-    document.body.classList.add('dark');
-  } else {
-    document.body.classList.remove('dark');
-  }
-};
-
 export const useThemeStore = create<ThemeState>((set) => ({
-  theme: 'system', // Valor por defecto
+  theme: 'system',
 
-  /**
-   * Aplica el tema al (re)cargar la app
-   */
   init: () => {
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      applyTheme(storedTheme);
-      set({ theme: storedTheme });
-    } else {
-      applyTheme('system'); // Aplica el 'system' por defecto
-    }
+    // 1. Leer del localStorage o usar 'system'
+    const stored = localStorage.getItem('theme') as Theme | null;
+    const initialTheme = stored || 'system';
+    
+    // 2. Aplicar inmediatamente
+    applyThemeToDocument(initialTheme);
+    set({ theme: initialTheme });
   },
 
-  /**
-   * Cambia y guarda el tema
-   */
-  setTheme: (theme) => {
-    localStorage.setItem('theme', theme); // Guarda la preferencia
-    applyTheme(theme); // Aplica el CSS
-    set({ theme: theme });
+  setTheme: (newTheme) => {
+    localStorage.setItem('theme', newTheme);
+    applyThemeToDocument(newTheme);
+    set({ theme: newTheme });
   },
 }));
 
-// Escuchar cambios del OS (si el usuario está en 'system')
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-  const storedTheme = localStorage.getItem('theme') as Theme | null;
-  if (storedTheme === 'system' || !storedTheme) {
-    applyTheme('system');
+// Función Helper para aplicar el atributo data-theme al HTML
+const applyThemeToDocument = (theme: Theme) => {
+  const root = document.documentElement;
+  
+  if (theme === 'system') {
+    const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', isSystemDark ? 'dark' : 'light');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+};
+
+// Listener para cambios en el sistema operativo en tiempo real
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  const currentSetting = localStorage.getItem('theme');
+  if (!currentSetting || currentSetting === 'system') {
+    document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
   }
 });

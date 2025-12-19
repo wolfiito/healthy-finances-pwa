@@ -1,29 +1,18 @@
-
-// En: src/pages/TabDashboard.tsx
-
-import { 
-  IonPage, 
-  IonHeader, 
-  IonToolbar, 
-  IonContent,
-  IonLoading,
-  IonText,
-  IonCard,
-  IonCardTitle,
-  IonCardContent,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonIcon
-} from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import { home, cash, card, car, receiptOutline } from 'ionicons/icons';
-import CategoryChart from '../components/CategoryChart';
-import './TabDashboard.css';
+import CategoryChart from '../components/CategoryChart'; // Asegúrate de que este componente no tenga Ionic por dentro
+import { 
+  HiHome, 
+  HiBanknotes, 
+  HiCreditCard, 
+  HiTruck, 
+  HiReceiptPercent, 
+  HiArrowTrendingUp, 
+  HiArrowTrendingDown 
+} from 'react-icons/hi2';
 
-// Interfaces (sin cambios)
+// --- Interfaces ---
 interface SimulationEvent {
   date: string;
   description: string;
@@ -38,13 +27,14 @@ interface Transaction {
   category: string;
 }
 
+// Helper para iconos (Versión React Icons)
 const getIconForEvent = (description: string) => {
   const desc = description.toLowerCase();
-  if (desc.includes('renta') || desc.includes('casa')) return home;
-  if (desc.includes('tanda')) return cash;
-  if (desc.includes('tc') || desc.includes('tarjeta')) return card;
-  if (desc.includes('coche') || desc.includes('préstamo')) return car;
-  return receiptOutline; 
+  if (desc.includes('renta') || desc.includes('casa')) return <HiHome className="w-6 h-6" />;
+  if (desc.includes('tanda')) return <HiBanknotes className="w-6 h-6" />;
+  if (desc.includes('tc') || desc.includes('tarjeta')) return <HiCreditCard className="w-6 h-6" />;
+  if (desc.includes('coche') || desc.includes('préstamo')) return <HiTruck className="w-6 h-6" />;
+  return <HiReceiptPercent className="w-6 h-6" />; 
 };
 
 const TabDashboard: React.FC = () => {
@@ -60,36 +50,36 @@ const TabDashboard: React.FC = () => {
       setIsLoading(true);
       setError(null);
       
+      // 1. Obtener Balance
       const balanceResponse = await apiClient.get('/api/transactions/balance');
       setBalance(balanceResponse.data.current_balance);
       
+      // 2. Proyección (Próximos pagos)
       const projectionResponse = await apiClient.get('/api/projection?months_ahead=1');
       const allEvents: SimulationEvent[] = projectionResponse.data.simulation_log;
-
       const currentDate = new Date();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
-
+      
       const monthlyExpenses = allEvents.filter(event => {
         const eventDate = new Date(event.date);
         return parseFloat(event.amount) < 0 &&
-               eventDate.getMonth() === currentMonth &&
-               eventDate.getFullYear() === currentYear;
+               eventDate.getMonth() === currentDate.getMonth() &&
+               eventDate.getFullYear() === currentDate.getFullYear();
       });
       setUpcomingEvents(monthlyExpenses);
 
+      // 3. Movimientos Recientes
       const transactionsResponse = await apiClient.get('/api/transactions');
       const allTransactions: Transaction[] = transactionsResponse.data;
-
       const monthlyTransactions = allTransactions.filter(tx => {
         const txDate = new Date(tx.date);
-        return txDate.getMonth() === currentMonth &&
-               txDate.getFullYear() === currentYear;
+        return txDate.getMonth() === currentDate.getMonth() &&
+               txDate.getFullYear() === currentDate.getFullYear();
       });
       setRecentTransactions(monthlyTransactions);
 
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Error al cargar datos.');
+      console.error(err);
+      setError(err.response?.data?.error || 'No se pudieron cargar los datos.');
     } finally {
       setIsLoading(false);
     }
@@ -99,101 +89,141 @@ const TabDashboard: React.FC = () => {
     fetchData();
   }, [refreshKey]);
 
-  const formatCurrency = (value: string) => {
+  const formatCurrency = (value: string | number) => {
+    const num = typeof value === 'string' ? parseFloat(value) : value;
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
-    }).format(parseFloat(value));
+    }).format(num);
   };
 
-  const renderBalance = () => {
-    if (isLoading && !balance) {
-      return <IonLoading isOpen={true} message={'Cargando...'} />;
-    }
-    if (error) {
-      return <IonText color="danger"><p>{error}</p></IonText>;
-    }
-    if (balance !== null) {
-      return (
-        <IonCard className="dashboard-card balance-card">
-          <IonCardTitle className="dashboard-card-title">Tu Saldo Actual</IonCardTitle>
-          <IonCardContent className="balance-card-content">
-            <div className="balance-amount">{formatCurrency(balance)}</div>
-          </IonCardContent>
-        </IonCard>
-      );
-    }
-    return null;
-  };
+  if (isLoading && !balance) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-base-200">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-base-200 p-4">
+        <div className="alert alert-error shadow-lg max-w-sm">
+           <span>{error}</span>
+        </div>
+        <button className="btn btn-outline mt-4" onClick={fetchData}>Reintentar</button>
+      </div>
+    );
+  }
 
   return (
-    <IonPage className="dashboard-page">
-      {/* Cabecera invisible y sin borde para eliminar la sombra del scroll */}
-      <IonHeader className="ion-no-border">
-        <IonToolbar style={{ '--background': 'transparent' }} />
-      </IonHeader>
-      <IonContent fullscreen={true}> 
-        
-        {renderBalance()}
+    <div className="min-h-screen bg-base-200 pb-24 font-sans">
+      
+      {/* 1. Header con Balance Principal */}
+      <div className="bg-gradient-to-b from-primary to-primary-focus pt-12 pb-20 px-6 rounded-b-[2.5rem] shadow-xl relative overflow-hidden">
+         {/* Decoración de fondo */}
+         <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
-        <IonCard className="dashboard-card">
-          <IonCardTitle className="dashboard-card-title">Próximos Pagos del Mes</IonCardTitle>
-          <div className="scrollable-list">
-            <IonList className="dashboard-list">
-              {isLoading && upcomingEvents.length === 0 && <IonText style={{padding: '16px'}}>Cargando...</IonText>}
-              {!isLoading && upcomingEvents.length === 0 && (
-                <IonItem className="empty-list-item">No tienes pagos programados para este mes.</IonItem>
-              )}
-              {upcomingEvents.map((event, index) => (
-                <IonItem key={index} className="dashboard-list-item">
-                  <IonIcon icon={getIconForEvent(event.description)} slot="start" color="medium"/>
-                  <IonLabel className="item-label">
-                    <h2>{event.description}</h2>
-                    <p>{new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
-                  </IonLabel>
-                  <IonText slot="end" className="item-amount negative">
-                    {formatCurrency(event.amount)}
-                  </IonText>
-                </IonItem>
-              ))}
-            </IonList>
+         <div className="text-center text-primary-content relative z-10">
+            <h2 className="text-sm font-medium opacity-80 uppercase tracking-widest mb-2">Saldo Total</h2>
+            <h1 className="text-5xl font-black tracking-tight drop-shadow-sm">
+              {balance !== null ? formatCurrency(balance) : '$0.00'}
+            </h1>
+         </div>
+      </div>
+
+      <div className="px-4 -mt-10 space-y-6">
+
+        {/* 2. Tarjeta: Próximos Pagos */}
+        <div className="card bg-base-100 shadow-xl border border-base-200">
+          <div className="card-body p-5">
+            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-4">
+              📅 Próximos Pagos
+            </h3>
+            
+            {upcomingEvents.length === 0 ? (
+              <p className="text-sm text-base-content/50 italic text-center py-4">Todo pagado por este mes 🎉</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {upcomingEvents.map((event, index) => (
+                  <div key={index} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                      {getIconForEvent(event.description)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-sm truncate">{event.description}</h4>
+                      <p className="text-xs text-base-content/60">
+                        {new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                      </p>
+                    </div>
+                    <div className="font-bold text-error">
+                      {formatCurrency(event.amount)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        </IonCard>
+        </div>
 
-        <IonCard className="dashboard-card">
-          <IonCardTitle className="dashboard-card-title">Movimientos del Mes</IonCardTitle>
-          <div className="scrollable-list">
-            <IonList className="dashboard-list">
-              {isLoading && recentTransactions.length === 0 && <IonText style={{padding: '16px'}}>Cargando...</IonText>}
-              {!isLoading && recentTransactions.length === 0 && (
-                <IonItem className="empty-list-item">No has registrado movimientos este mes.</IonItem>
-              )}
-              {recentTransactions.map((tx) => (
-                <IonItem key={tx.id} className="dashboard-list-item">
-                  <IonLabel className="item-label">
-                    <h2>{tx.description}</h2>
-                    <p>{new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p>
-                  </IonLabel>
-                  <IonText 
-                    slot="end" 
-                    className={`item-amount ${parseFloat(tx.amount) < 0 ? 'negative' : 'positive'}`}>
-                    {formatCurrency(tx.amount)}
-                  </IonText>
-                </IonItem>
-              ))}
-            </IonList>
+        {/* 3. Tarjeta: Movimientos Recientes */}
+        <div className="card bg-base-100 shadow-xl border border-base-200">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="card-title text-sm uppercase text-base-content/60 font-bold">
+                💸 Movimientos del Mes
+              </h3>
+              {/* Indicador visual opcional de cantidad */}
+              <span className="badge badge-sm badge-ghost">{recentTransactions.length}</span>
+            </div>
+
+            {recentTransactions.length === 0 ? (
+              <p className="text-sm text-base-content/50 italic text-center py-4">Sin movimientos aún</p>
+            ) : (
+              // --- AQUÍ ESTÁ LA MAGIA ---
+              // max-h-[320px]: Altura calculada para mostrar aprox 5 items (ajusta el número si quieres ver más/menos)
+              // overflow-y-auto: Permite scrollear dentro de este div
+              <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar">
+                {recentTransactions.map((tx) => {
+                  const isNegative = parseFloat(tx.amount) < 0;
+                  return (
+                    <div key={tx.id} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors shrink-0">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 
+                        ${isNegative ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
+                        {isNegative ? <HiArrowTrendingDown className="w-5 h-5"/> : <HiArrowTrendingUp className="w-5 h-5"/>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm truncate">{tx.description}</h4>
+                        <p className="text-xs text-base-content/60">
+                          {new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                        </p>
+                      </div>
+                      <div className={`font-bold ${isNegative ? 'text-base-content' : 'text-success'}`}>
+                        {isNegative ? '' : '+'}{formatCurrency(tx.amount)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </IonCard>
+        </div>
 
-        <IonCard className="dashboard-card">
-          <IonCardTitle className="dashboard-card-title">Gastos por Descripción</IonCardTitle>
-          <IonCardContent>
-            <CategoryChart transactions={recentTransactions} />
-          </IonCardContent>
-        </IonCard>
+        {/* 4. Tarjeta: Gráfico (Gastos por Categoría) */}
+        {/* NOTA: Verifica que CategoryChart.tsx no use componentes de Ionic internamente */}
+        <div className="card bg-base-100 shadow-xl border border-base-200 mb-6">
+          <div className="card-body p-5">
+            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-2">
+              📊 Gastos por Categoría
+            </h3>
+            <div className="h-64 w-full flex items-center justify-center">
+               <CategoryChart transactions={recentTransactions} />
+            </div>
+          </div>
+        </div>
 
-      </IonContent>
-    </IonPage>
+      </div>
+    </div>
   );
 };
 

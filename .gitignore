@@ -1,17 +1,52 @@
-# Dependencias
+# --- Dependencias ---
 node_modules
+.pnp
+.pnp.js
 
-# Carpeta de compilación
+# --- Compilación y Producción ---
 dist
 dist-ssr
+build
+*.local
 
-# Logs
+# --- Logs y Diagnóstico ---
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
+logs
+*.log
 
-# Variables de entorno (¡Importante!)
+# --- Sistema Operativo (¡Muy Importante!) ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Editores de Código ---
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Variables de Entorno (Secretos) ---
 .env
 .env.local
-.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Testing (Por si agregas pruebas después) ---
+coverage
+
+# --- Vite PWA ---
+# A veces el plugin genera estos archivos en dev
+dev-dist/

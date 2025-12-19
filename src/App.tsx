@@ -1,53 +1,47 @@
-// En: src/App.tsx
-
-import { IonApp, IonRouterOutlet } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { Route, Redirect } from 'react-router-dom';
-
-// 1. Importar el "cerebro" de autenticación
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import { useThemeStore } from './store/themeStore';
+
+// Páginas
+import Login from './pages/Login';
+import Tabs from './pages/Tabs'; // Contiene el Dashboard, Cuentas, etc.
 import AccountDetail from './pages/AccountDetail';
 
-// 2. Importar nuestras páginas
-import Login from './pages/Login';
-import Tabs from './pages/Tabs';
-
-function App() {
-  // 3. Obtener el estado de autenticación
+const App: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
+  // Inicializar el tema guardado al cargar la app
+  const initTheme = useThemeStore((state) => state.init);
+  React.useEffect(() => {
+    initTheme();
+  }, []);
 
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          {/* Ruta pública */}
-          <Route exact path="/login" component={Login} />
+    <Router>
+      <Switch>
+        {/* Ruta Pública: Login */}
+        <Route exact path="/login">
+          {isAuthenticated ? <Redirect to="/app" /> : <Login />}
+        </Route>
 
-          {/* --- ¡LA NUEVA LÓGICA DE SEGURIDAD! --- */}
-          <Route
-            path="/app"
-            render={() => {
-              // Si está autenticado, muestra las Pestañas.
-              // Si NO, lo patea al Login.
-              return isAuthenticated ? <Tabs /> : <Redirect to="/login" />;
-            }}
-          />
-          {/* --- FIN DEL ARREGLO --- */}
-          <Route
-            path="/accounts/:id"
-            render={() => {
-              return isAuthenticated ? <AccountDetail /> : <Redirect to="/login" />;
-            }}
-          />    
-          {/* Ruta por defecto */}
-          <Route exact path="/">
-            <Redirect to="/login" />
-          </Route>
-          
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </IonApp>
+        {/* Rutas Protegidas: Toda la app interna */}
+        <Route path="/app">
+          {isAuthenticated ? <Tabs /> : <Redirect to="/login" />}
+        </Route>
+
+        {/* Ruta Detalle de Cuenta (fuera de los tabs para tener más espacio) */}
+        <Route path="/accounts/:id">
+          {isAuthenticated ? <AccountDetail /> : <Redirect to="/login" />}
+        </Route>
+
+        {/* Redirección por defecto: Ir a Login o a la App si ya hay sesión */}
+        <Route path="/">
+          <Redirect to={isAuthenticated ? "/app" : "/login"} />
+        </Route>
+      </Switch>
+    </Router>
   );
-}
+};
 
 export default App;

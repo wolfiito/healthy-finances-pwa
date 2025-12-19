@@ -1,169 +1,161 @@
-// En: src/components/AddAccountModal.tsx
-
-import {
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonButtons,
-  IonList,
-  IonItem,
-  IonInput,
-  IonLoading,
-  IonNote
-} from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
+import { HiXMark } from 'react-icons/hi2';
 
 interface AddAccountModalProps {
   isOpen: boolean;
-  onDidDismiss: () => void;
+  onClose: () => void;
 }
 
-const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onDidDismiss }) => {
-  // --- Estados del Componente ---
+const AddAccountModal: React.FC<AddAccountModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // --- Estados del Formulario (Simplificado) ---
+  // Estados del Formulario
   const [name, setName] = useState('');
-  const [closingDate, setClosingDate] = useState<number | string>('');
-  const [paymentDate, setPaymentDate] = useState<number | string>('');
+  const [closingDate, setClosingDate] = useState<string>('');
+  const [paymentDate, setPaymentDate] = useState<string>('');
 
   const triggerRefresh = useDataStore((state) => state.triggerRefresh);
 
-  // --- Limpiar el formulario y errores ---
-  const resetForm = () => {
-    setName('');
-    setClosingDate('');
-    setPaymentDate('');
-    setError(null);
-  };
-
-  // --- Efecto para limpiar al abrir ---
+  // Limpiar al abrir
   useEffect(() => {
     if (isOpen) {
-      resetForm();
+      setName('');
+      setClosingDate('');
+      setPaymentDate('');
+      setError(null);
     }
   }, [isOpen]);
 
-  // --- Wrapper para limpiar error al escribir ---
-  const handleInput = (setter: Function, value: any) => {
-    if (error) setError(null);
-    setter(value);
-  };
-
-  // --- Lógica de Guardado y Validación ---
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault(); // Evitar recarga
     setError(null);
     
-    // 1. Validar nombre
+    // Validaciones
     if (!name.trim()) {
-      setError('El Nombre de la tarjeta es requerido.');
+      setError('El nombre es obligatorio.');
       return;
     }
-    
-    // 2. Validar campos de tarjeta de crédito (siempre visibles)
     const closingDay = Number(closingDate);
     const paymentDay = Number(paymentDate);
 
     if (!closingDay || closingDay < 1 || closingDay > 31) {
-      setError('El Día de Corte debe ser un número válido entre 1 y 31.');
+      setError('Día de corte inválido (1-31).');
       return;
     }
     if (!paymentDay || paymentDay < 1 || paymentDay > 31) {
-      setError('El Día de Pago debe ser un número válido entre 1 y 31.');
+      setError('Día de pago inválido (1-31).');
       return;
     }
 
     setIsLoading(true);
     try {
-      // Usamos el "contrato" exacto que definiste
       await apiClient.post('/api/accounts/new', {
         name: name,
-        type: 'credit_card', // Valor fijo
+        type: 'credit_card', // Por ahora fijo a Tarjeta de Crédito según tu lógica anterior
         closing_date: closingDay,
         payment_date: paymentDay,
       });
 
-      triggerRefresh();
-      onDidDismiss();
+      triggerRefresh(); // Actualizar listas
+      onClose();        // Cerrar modal
 
     } catch (err: any) {
-      const apiError = err.response?.data?.error || "Error al guardar la tarjeta";
-      setError(apiError);
-      console.error("Error al guardar la tarjeta", err);
+      setError(err.response?.data?.error || "Error al guardar.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Si no está abierto, no renderizamos nada (para evitar superposiciones)
+  if (!isOpen) return null;
+
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={onDidDismiss}>Cancelar</IonButton>
-          </IonButtons>
-          {/* Título actualizado */}
-          <IonTitle>Nueva Tarjeta de Crédito</IonTitle>
-          <IonButtons slot="end">
-            <IonButton strong={true} onClick={handleSave} disabled={isLoading}>Guardar</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonLoading isOpen={isLoading} message="Guardando..." />
-        <IonList>
+    // Fondo oscuro con backdrop-blur
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      
+      {/* Caja del Modal */}
+      <div className="bg-base-100 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+        
+        {/* Header del Modal */}
+        <div className="bg-base-200 px-6 py-4 flex justify-between items-center border-b border-base-300">
+          <h3 className="font-bold text-lg">Nueva Tarjeta</h3>
+          <button onClick={onClose} className="btn btn-ghost btn-circle btn-sm">
+            <HiXMark className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Cuerpo del Formulario */}
+        <form onSubmit={handleSave} className="p-6 space-y-4">
           
           {error && (
-            <IonItem lines="none">
-              <IonNote color="danger" style={{ width: '100%', textAlign: 'center', fontWeight: 500 }}>
-                {error}
-              </IonNote>
-            </IonItem>
+            <div className="alert alert-error text-sm py-2 rounded-lg">
+              <span>{error}</span>
+            </div>
           )}
 
-          <IonItem>
-            <IonInput
-              label="Nombre de la Tarjeta (ej. Banamex Oro)"
-              labelPlacement="floating"
+          {/* Nombre */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text font-medium">Nombre de la Tarjeta</span>
+            </label>
+            <input 
+              type="text" 
+              placeholder="Ej. Banamex Oro" 
+              className="input input-bordered w-full focus:input-primary"
               value={name}
-              onIonInput={(e) => handleInput(setName, e.detail.value!)}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
             />
-          </IonItem>
-          
-          {/* Campo de tipo de cuenta eliminado */}
+          </div>
 
-          {/* Campos de fecha siempre visibles */}
-          <>
-            <IonItem>
-              <IonInput
-                label="Día de Corte (ej. 25)"
-                labelPlacement="floating"
-                type="number"
-                inputmode="numeric"
+          <div className="grid grid-cols-2 gap-4">
+            {/* Día de Corte */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Día de Corte</span>
+              </label>
+              <input 
+                type="number" 
+                placeholder="Ej. 25" 
+                className="input input-bordered w-full focus:input-primary"
                 value={closingDate}
-                onIonInput={(e) => handleInput(setClosingDate, e.detail.value!)}
+                onChange={(e) => setClosingDate(e.target.value)}
+                min="1" max="31"
               />
-            </IonItem>
-            <IonItem>
-              <IonInput
-                label="Día de Pago (ej. 15)"
-                labelPlacement="floating"
-                type="number"
-                inputmode="numeric"
+            </div>
+
+            {/* Día de Pago */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Día de Pago</span>
+              </label>
+              <input 
+                type="number" 
+                placeholder="Ej. 15" 
+                className="input input-bordered w-full focus:input-primary"
                 value={paymentDate}
-                onIonInput={(e) => handleInput(setPaymentDate, e.detail.value!)}
+                onChange={(e) => setPaymentDate(e.target.value)}
+                min="1" max="31"
               />
-            </IonItem>
-          </>
-        </IonList>
-      </IonContent>
-    </IonModal>
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <button 
+              type="submit" 
+              className="btn btn-primary w-full text-lg shadow-lg shadow-primary/20"
+              disabled={isLoading}
+            >
+              {isLoading ? <span className="loading loading-spinner"></span> : 'Guardar Tarjeta'}
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
   );
 };
 

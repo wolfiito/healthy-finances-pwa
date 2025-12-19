@@ -1,234 +1,166 @@
-// En: src/components/AddRuleModal.tsx
-
-import {
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonButtons,
-  IonList,
-  IonItem,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonDatetime,
-  IonDatetimeButton,
-  IonLabel,
-  IonLoading,
-  IonNote
-} from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
+import { HiXMark } from 'react-icons/hi2';
 
 interface AddRuleModalProps {
   isOpen: boolean;
-  onDidDismiss: () => void;
+  onClose: () => void;
 }
 
-const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onDidDismiss }) => {
-  // --- Estados del Formulario ---
+const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
+  // Estados
   const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState<number>();
+  const [amount, setAmount] = useState<number | string>('');
   const [type, setType] = useState<'expense' | 'income'>('expense');
+  const [frequency, setFrequency] = useState('monthly');
+  const [firstDate, setFirstDate] = useState('');
 
-  // --- CAMBIO AQUÍ (1/2): Actualizado el tipo y el valor default ---
-  // Los valores (ej. 'monthly') deben coincidir con tu Enum de Python
-  const [frequency, setFrequency] = useState<'monthly' | 'bi_weekly' | 'weekly' | 'daily' | 'yearly' | 'once'>('monthly');
-  
-  const [firstDate, setFirstDate] = useState<string>();
-
-  // --- Estados del Componente ---
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const triggerRefresh = useDataStore((state) => state.triggerRefresh);
 
-  // --- Limpiar el formulario y errores ---
-  const resetForm = () => {
-    setDescription('');
-    setAmount(undefined);
-    setType('expense');
-    setFrequency('monthly'); // Reseteamos al valor default en inglés
-    setFirstDate(undefined);
-    setError(null);
-  };
-
-  // --- Efecto para limpiar al abrir/cerrar ---
   useEffect(() => {
     if (isOpen) {
-      resetForm();
+      setDescription('');
+      setAmount('');
+      setType('expense');
+      setFrequency('monthly');
+      setFirstDate('');
+      setError(null);
     }
   }, [isOpen]);
 
-  // --- Wrapper para limpiar error al escribir ---
-  const handleInput = (setter: Function, value: any) => {
-    if (error) setError(null);
-    setter(value);
-  };
-
-  // --- Lógica de Guardado ---
-  const handleSave = async () => {
-    // Validación de cliente
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!description || !amount || !firstDate) {
-      setError("Todos los campos son requeridos.");
+      setError("Completa todos los campos.");
       return;
     }
-    if (amount <= 0) {
-        setError("El monto debe ser un número positivo.");
-        return;
+    if (Number(amount) <= 0) {
+      setError("Monto debe ser positivo.");
+      return;
     }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const dateToSend = Array.isArray(firstDate) ? firstDate[0].split('T')[0] : firstDate.split('T')[0];
-
-      // El 'frequency' ahora se envía en inglés (ej. 'monthly')
       await apiClient.post('/api/rules/new', {
-        description: description,
-        amount: amount,
-        type: type,
-        frequency: frequency,
-        first_execution_date: dateToSend
-        // 'account_id' se omite correctamente,
-        // tal como modificamos el backend.
+        description,
+        amount: Number(amount),
+        type,
+        frequency,
+        first_execution_date: firstDate
       });
 
       triggerRefresh();
-      onDidDismiss();
-
+      onClose();
     } catch (err: any) {
-      let apiError = "Error desconocido al guardar la regla."; // Mensaje por defecto
-      if (err.response && err.response.data) {
-          const errorData = err.response.data;
-          console.error("Server error data:", errorData); // Dejar esto para depuración
-          
-          // --- Manejo de Errores Mejorado ---
-          // Intenta leer el error específico de la API (ej. "Frecuencia no válida")
-          if (errorData.error) {
-            apiError = errorData.error;
-          } else if (typeof errorData === 'object' && errorData !== null) {
-              const errorValues = Object.values(errorData);
-              if (errorValues.length > 0) {
-                  const firstError = errorValues[0];
-                  if (Array.isArray(firstError) && firstError.length > 0) {
-                      apiError = firstError[0];
-                  } else if (typeof firstError === 'string') {
-                      apiError = firstError;
-                  }
-              }
-          } else if (typeof errorData === 'string') {
-              apiError = errorData;
-          }
-      } else if (err.message) {
-          apiError = err.message;
-      }
-      setError(apiError);
+      setError("Error al guardar la regla.");
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss}>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton onClick={onDidDismiss}>Cancelar</IonButton>
-          </IonButtons>
-          <IonTitle>Nueva Regla Fija</IonTitle>
-          <IonButtons slot="end">
-            <IonButton strong={true} onClick={handleSave} disabled={isLoading}>Guardar</IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonLoading isOpen={isLoading} message={"Guardando..."} />
-        <IonList>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-base-100 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scale-up">
+        
+        {/* Header */}
+        <div className="bg-base-200 px-5 py-4 flex justify-between items-center border-b border-base-300">
+          <h3 className="font-bold text-lg">Nueva Regla</h3>
+          <button onClick={onClose} className="btn btn-ghost btn-circle btn-sm">
+            <HiXMark className="w-6 h-6" />
+          </button>
+        </div>
 
-          {error && (
-            <IonItem lines="none">
-            <IonNote color="danger" style={{ width: '100%', textAlign: 'center', fontWeight: 500 }}>
-                {error}
-            </IonNote>
-            </IonItem>
-          )}
+        {/* Formulario */}
+        <form onSubmit={handleSave} className="p-5 space-y-4">
+          {error && <div className="alert alert-error text-sm py-2">{error}</div>}
 
-          <IonItem>
-            <IonInput
-              label="Descripción"
-              labelPlacement="floating"
+          {/* Tipo */}
+          <div className="join w-full grid grid-cols-2">
+            <input 
+              className="join-item btn btn-sm" 
+              type="radio" 
+              name="ruleType" 
+              aria-label="Gasto Fijo" 
+              checked={type === 'expense'}
+              onChange={() => setType('expense')}
+            />
+            <input 
+              className="join-item btn btn-sm" 
+              type="radio" 
+              name="ruleType" 
+              aria-label="Ingreso Fijo"
+              checked={type === 'income'}
+              onChange={() => setType('income')}
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label py-1"><span className="label-text">Descripción</span></label>
+            <input 
+              type="text" 
+              className="input input-bordered w-full focus:input-primary"
               value={description}
-              onIonInput={(e) => handleInput(setDescription, e.detail.value!)}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Ej. Renta, Netflix..."
             />
-          </IonItem>
+          </div>
 
-          <IonItem>
-            <IonSelect
-              label="Tipo"
-              value={type}
-              onIonChange={(e) => handleInput(setType, e.detail.value)}
-            >
-              <IonSelectOption value="expense">Gasto Fijo</IonSelectOption>
-              <IonSelectOption value="income">Ingreso Fijo</IonSelectOption>
-            </IonSelect>
-          </IonItem>
+          <div className="form-control">
+             <label className="label py-1"><span className="label-text">Monto</span></label>
+             <input 
+               type="number" 
+               className="input input-bordered w-full focus:input-primary"
+               value={amount}
+               onChange={(e) => setAmount(e.target.value)}
+               placeholder="0.00"
+               inputMode="decimal"
+             />
+          </div>
 
-          <IonItem>
-            <IonInput
-              label="Monto"
-              labelPlacement="floating"
-              type="number"
-              inputmode="numeric"
-              value={amount}
-              onIonInput={(e) => handleInput(setAmount, parseInt(e.detail.value!))}
-            />
-          </IonItem>
+          <div className="grid grid-cols-2 gap-4">
+             <div className="form-control">
+               <label className="label py-1"><span className="label-text">Frecuencia</span></label>
+               <select 
+                 className="select select-bordered w-full"
+                 value={frequency}
+                 onChange={(e) => setFrequency(e.target.value)}
+               >
+                 <option value="monthly">Mensual</option>
+                 <option value="bi_weekly">Quincenal</option>
+                 <option value="weekly">Semanal</option>
+                 <option value="daily">Diario</option>
+                 <option value="yearly">Anual</option>
+                 <option value="once">Una vez</option>
+               </select>
+             </div>
+             
+             <div className="form-control">
+               <label className="label py-1"><span className="label-text">Inicio</span></label>
+               <input 
+                 type="date" 
+                 className="input input-bordered w-full"
+                 value={firstDate}
+                 onChange={(e) => setFirstDate(e.target.value)}
+               />
+             </div>
+          </div>
 
-          {/* --- CAMBIO AQUÍ (2/2): Actualizados los 'value' --- */}
-          {/* El 'value' se envía a la API (inglés), el texto se muestra al usuario (español) */}
-          <IonItem>
-            <IonSelect
-              label="Frecuencia"
-              value={frequency}
-              onIonChange={(e) => handleInput(setFrequency, e.detail.value)}
-            >
-              <IonSelectOption value="monthly">Mensual</IonSelectOption>
-              <IonSelectOption value="bi_weekly">Quincenal</IonSelectOption>
-              <IonSelectOption value="weekly">Semanal</IonSelectOption>
-              <IonSelectOption value="daily">Diario</IonSelectOption>
-              <IonSelectOption value="yearly">Anual</IonSelectOption>
-              <IonSelectOption value="once">Una vez</IonSelectOption>
-            </IonSelect>
-          </IonItem>
-
-          <IonItem>
-            <IonLabel>Fecha del primer pago/cobro</IonLabel>
-            <IonDatetimeButton datetime="datetime"></IonDatetimeButton>
-            <IonModal keepContentsMounted={true}>
-              <IonDatetime
-                id="datetime"
-                presentation="date"
-                onIonChange={(e) => {
-                  if (error) setError(null);
-                  const value = e.detail.value;
-                  if (Array.isArray(value)) {
-                    handleInput(setFirstDate, value[0]);
-                  } else {
-                    handleInput(setFirstDate, value as string | undefined);
-                  }
-                }}
-              ></IonDatetime>
-            </IonModal>
-          </IonItem>
-
-        </IonList>
-      </IonContent>
-    </IonModal>
+          <div className="pt-4">
+             <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
+               {isLoading ? <span className="loading loading-spinner"></span> : 'Guardar Regla'}
+             </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
