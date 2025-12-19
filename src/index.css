@@ -5,7 +5,14 @@
     /* Esto hace que el fondo detrás del scroll sea del color de tu tema (base-200) */
     background-color: var(--fallback-b2,oklch(var(--b2)/1));
   }
-/* --- UTILIDADES PERSONALIZADAS --- */
+
+  body {
+    /* Asegura que el body también use ese color y ocupe el mínimo de pantalla */
+    background-color: var(--fallback-b2,oklch(var(--b2)/1));
+    min-height: 100vh;
+  }
+/* --- U
+TILIDADES PERSONALIZADAS --- */
 @layer utilities {
   /* Ocultar scrollbar */
   .no-scrollbar::-webkit-scrollbar { display: none; }
