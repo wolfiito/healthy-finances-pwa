@@ -1,95 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
 import { HiChartBar, HiCalendarDays } from 'react-icons/hi2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+interface SimulationEvent { 
+  date: string; 
+  description: string; 
+  amount: string; 
+  new_balance: string; 
+}
 
-interface SimulationEvent { date: string; description: string; amount: string; new_balance: string; }
-interface ProjectionData { start_balance: string; projected_balance_end: string; simulation_log: SimulationEvent[]; }
+interface ProjectionData { 
+  start_balance: string; 
+  projected_balance_end: string; 
+  simulation_log: SimulationEvent[]; 
+}
 
 const TabProyeccion: React.FC = () => {
   const [projection, setProjection] = useState<ProjectionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [months, setMonths] = useState<string>('3');
-  const [chartData, setChartData] = useState<any>(null);
-  const [isDark, setIsDark] = useState(false);
   
   const { refreshKey } = useDataStore();
-
-  // 1. Detectar Tema Dinámicamente
-  useEffect(() => {
-    const checkTheme = () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDark(currentTheme === 'dark' || (currentTheme === null && systemDark));
-    };
-
-    checkTheme();
-    
-    const observer = new MutationObserver(checkTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    
-    return () => observer.disconnect();
-  }, []);
-
-  // 2. Preparar datos del gráfico
-  const prepareChartData = (startBalance: string, log: SimulationEvent[]) => {
-    const labels = ['Hoy'];
-    const data = [parseFloat(startBalance)];
-
-    log.forEach(event => {
-      const eventDate = new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
-      labels.push(eventDate);
-      data.push(parseFloat(event.new_balance));
-    });
-
-    // --- COLORES DEL TEMA RAINBOW ---
-    // Dark: Verde Neón (#10b981) | Light: Rosa Chicle (#db2777)
-    const lineColor = isDark ? '#10b981' : '#db2777'; 
-    const fillColor = isDark ? 'rgba(16, 185, 129, 0.15)' : 'rgba(219, 39, 119, 0.15)';
-    
-    // Eliminamos gridColor y textColor para que TS no marque error
-
-    setChartData({
-      labels: labels,
-      datasets: [
-        {
-          label: 'Saldo Proyectado',
-          data: data,
-          fill: true,
-          borderColor: lineColor,
-          backgroundColor: fillColor,
-          borderWidth: 3,
-          tension: 0.4,
-          pointRadius: 0,
-          pointHitRadius: 20
-        }
-      ]
-    });
-  };
 
   const fetchProjection = async () => {
     try {
@@ -103,7 +36,6 @@ const TabProyeccion: React.FC = () => {
       setError(null);
       const response = await apiClient.get(`/api/projection?months_ahead=${months}`);
       setProjection(response.data);
-      prepareChartData(response.data.start_balance, response.data.simulation_log);
       
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al cargar la proyección.');
@@ -112,12 +44,6 @@ const TabProyeccion: React.FC = () => {
     }
   };
   
-  useEffect(() => {
-    if (projection) {
-      prepareChartData(projection.start_balance, projection.simulation_log);
-    }
-  }, [isDark]); 
-
   useEffect(() => {
     fetchProjection();
   }, [refreshKey, months]);
@@ -178,63 +104,48 @@ const TabProyeccion: React.FC = () => {
 
         {!isLoading && !error && projection && (
           <>
-            {/* 3. Indicadores Clave */}
+            {/* 3. Indicadores Clave (Tarjetas Grandes) */}
             <div className="grid grid-cols-2 gap-4">
+               {/* Saldo Actual */}
                <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
                  <div className="text-xs uppercase text-base-content/50 font-bold mb-1">Saldo Actual</div>
-                 <div className="text-lg font-bold">{formatCurrency(projection.start_balance)}</div>
+                 <div className="text-lg font-bold truncate">{formatCurrency(projection.start_balance)}</div>
                </div>
+               
+               {/* Saldo Futuro (Resaltado con color del tema) */}
                <div className="card bg-primary text-primary-content shadow-lg p-4 shadow-primary/30">
                  <div className="text-xs uppercase opacity-70 font-bold mb-1">Saldo Futuro</div>
-                 <div className="text-lg font-bold">{formatCurrency(projection.projected_balance_end)}</div>
+                 <div className="text-lg font-bold truncate">{formatCurrency(projection.projected_balance_end)}</div>
                </div>
             </div>
             
-            {/* 4. Gráfico */}
-            {chartData && (
-              <div className="card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
-                <div className="card-body p-4">
-                  <div className="h-64 w-full">
-                    <Line 
-                      data={chartData} 
-                      options={{ 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { 
-                          x: { display: false },
-                          y: { 
-                            grid: { display: false },
-                            ticks: { display: false }
-                          } 
-                        },
-                        elements: { point: { radius: 0 } }
-                      }} 
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 5. Lista de Eventos */}
+            {/* 4. Lista de Eventos (Timeline Vertical Simple) */}
             <div className="space-y-3">
-              <h3 className="font-bold text-sm uppercase text-base-content/60 ml-1">Eventos Proyectados</h3>
-              {projection.simulation_log.map((event, index) => (
-                <div key={index} className="card bg-base-100 shadow-sm border border-base-200 p-3 flex-row items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center shrink-0 text-base-content/40">
-                      <HiCalendarDays className="w-5 h-5" />
-                   </div>
-                   <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-sm truncate">{event.description}</h4>
-                      <p className="text-xs text-base-content/60">
-                        {new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
-                      </p>
-                   </div>
-                   <div className={`font-bold text-sm ${parseFloat(event.amount) < 0 ? 'text-base-content' : 'text-success'}`}>
-                      {parseFloat(event.amount) > 0 ? '+' : ''}{formatCurrency(event.amount)}
-                   </div>
-                </div>
-              ))}
+              <h3 className="font-bold text-sm uppercase text-base-content/60 ml-1 mt-2">Eventos Proyectados</h3>
+              
+              {projection.simulation_log.length === 0 ? (
+                 <p className="text-center text-sm opacity-50 italic py-4">No hay eventos para este periodo.</p>
+              ) : (
+                projection.simulation_log.map((event, index) => (
+                  <div key={index} className="card bg-base-100 shadow-sm border border-base-200 p-3 flex-row items-center gap-3">
+                     
+                     <div className="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center shrink-0 text-base-content/40">
+                        <HiCalendarDays className="w-5 h-5" />
+                     </div>
+                     
+                     <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-sm truncate">{event.description}</h4>
+                        <p className="text-xs text-base-content/60">
+                          {new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                        </p>
+                     </div>
+                     
+                     <div className={`font-bold text-sm ${parseFloat(event.amount) < 0 ? 'text-base-content' : 'text-success'}`}>
+                        {parseFloat(event.amount) > 0 ? '+' : ''}{formatCurrency(event.amount)}
+                     </div>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}

@@ -132,7 +132,7 @@ const TabDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="px-4 space-y-6 relative">
+      <div className="px-4 space-y-6 relative mt-8">
 
         {/* 2. Tarjeta: Próximos Pagos */}
         <div className="card bg-base-100 shadow-xl border border-base-200">

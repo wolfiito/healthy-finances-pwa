@@ -21,7 +21,6 @@ const Tabs: React.FC = () => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname.includes(path);
 
-  // Clase para el botón (Activo vs Inactivo)
   const navBtnClass = (active: boolean) => `
     flex flex-col items-center justify-center w-full h-full py-1 
     transition-all duration-200 active:scale-95
@@ -32,10 +31,17 @@ const Tabs: React.FC = () => {
   `;
 
   return (
-    <div className="flex flex-col h-screen w-full bg-base-200">
+    // CAMBIO CLAVE 1:
+    // Quitamos 'h-screen' y 'flex-col'. Usamos 'min-h-screen'.
+    // Esto permite que el <body> crezca y el navegador detecte el scroll.
+    <div className="min-h-screen w-full bg-base-200">
       
-      {/* 1. Área de Contenido (Ocupa todo el espacio disponible) */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20"> 
+      {/* CAMBIO CLAVE 2:
+          Quitamos 'overflow-y-auto' y 'flex-1'.
+          El 'pb-24' (padding bottom) es vital para que el contenido final 
+          no quede tapado por la barra de navegación fija.
+      */}
+      <div className="w-full pb-24"> 
         <Switch>
           <Route path="/app/dashboard" component={TabDashboard} />
           <Route path="/app/cuentas" component={TabCuentas} />
@@ -48,9 +54,9 @@ const Tabs: React.FC = () => {
         </Switch>
       </div>
 
-      {/* 2. Barra de Navegación MANUAL (Sin depender de btm-nav) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-auto min-h-[4rem] z-50 pb-safe">
-        <div className="flex justify-around items-center h-16">
+      {/* Barra de Navegación (Sigue igual, fija abajo) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-200 shadow-[0_-5px_10px_rgba(0,0,0,0.02)] h-16 z-50 pb-safe">
+        <div className="flex justify-around items-center h-full">
           
           <Link to="/app/dashboard" className={navBtnClass(isActive('/dashboard'))}>
             <HiHome className={`w-6 h-6 mb-1 ${isActive('/dashboard') ? 'drop-shadow-sm' : ''}`} />
