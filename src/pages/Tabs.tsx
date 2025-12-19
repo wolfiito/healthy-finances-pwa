@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Switch, Route, Redirect, useLocation, Link, useHistory } from 'react-router-dom';
+import { Switch, Route, Redirect, useLocation, Link } from 'react-router-dom';
 
 // Pantallas
 import TabDashboard from './TabDashboard';
@@ -30,7 +30,6 @@ import {
 
 const Tabs: React.FC = () => {
   const location = useLocation();
-  const history = useHistory();
   
   // Estados
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
