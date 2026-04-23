@@ -15,9 +15,11 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
   const [type, setType] = useState<'expense' | 'income'>('expense');
   const [frequency, setFrequency] = useState('monthly');
   const [firstDate, setFirstDate] = useState('');
+  const [accountId, setAccountId] = useState<string>('');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<any[]>([]);
 
   const triggerRefresh = useDataStore((state) => state.triggerRefresh);
 
@@ -28,16 +30,27 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
       setType('expense');
       setFrequency('monthly');
       setFirstDate('');
+      setAccountId('');
       setError(null);
+      fetchAccounts();
     }
   }, [isOpen]);
+
+  const fetchAccounts = async () => {
+    try {
+      const response = await apiClient.get('/api/accounts/summary');
+      setAccounts(response.data);
+    } catch (err) {
+      console.error("Error al cargar cuentas", err);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validaciones
     if (!description || !amount || !firstDate) {
-      setError("Completa todos los campos.");
+      setError("Completa todos los campos básicos.");
       return;
     }
     if (Number(amount) <= 0) {
@@ -55,7 +68,8 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
         amount: Number(amount),
         type,
         frequency,
-        first_execution_date: firstDate
+        first_execution_date: firstDate,
+        account_id: accountId ? Number(accountId) : null
       });
 
       triggerRefresh();
@@ -72,10 +86,8 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
-      {/* Backdrop con Blur */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      {/* Modal con Diseño Moderno (Rounded, Safe Area, Animación) */}
       <div className="bg-base-100 w-full sm:w-96 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden relative pb-safe animate-slide-up sm:animate-scale-up flex flex-col max-h-[90vh]">
         
         {/* Header */}
@@ -89,7 +101,7 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Formulario con Scroll */}
+        {/* Formulario */}
         <div className="overflow-y-auto p-5">
           <form onSubmit={handleSave} className="space-y-4">
             
@@ -117,6 +129,25 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
               </button>
             </div>
 
+            {/* Cuenta Asociada */}
+            <div className="form-control">
+              <label className="label py-1">
+                <span className="label-text text-xs font-bold uppercase opacity-70">¿A qué cuenta pertenece?</span>
+              </label>
+              <select 
+                className="select select-bordered w-full focus:select-secondary rounded-xl text-sm"
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+              >
+                <option value="">Seleccionar cuenta (Opcional)</option>
+                {accounts.map(acc => (
+                  <option key={acc.account_id} value={acc.account_id}>
+                    {acc.account_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Descripción */}
             <div className="form-control">
               <label className="label py-1"><span className="label-text text-xs font-bold uppercase opacity-70">Descripción</span></label>
@@ -129,7 +160,7 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
               />
             </div>
 
-            {/* Monto (Estilo Grande) */}
+            {/* Monto */}
             <div className="form-control">
               <label className="label py-1"><span className="label-text text-xs font-bold uppercase opacity-70">Monto</span></label>
               <div className="relative">
@@ -145,7 +176,7 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Frecuencia y Fecha (Grid) */}
+            {/* Frecuencia y Fecha */}
             <div className="grid grid-cols-2 gap-4">
                <div className="form-control">
                  <label className="label py-1"><span className="label-text text-xs font-bold uppercase opacity-70">Frecuencia</span></label>

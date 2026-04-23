@@ -14,9 +14,9 @@ import {
 } from 'react-icons/hi2';
 
 interface Account {
-  account_id: number;
-  account_name: string;
-  account_type: string;
+  id: number;
+  name: string;
+  type: string;
   current_balance: string;
 }
 
@@ -55,18 +55,40 @@ const TabCuentas: React.FC = () => {
 
   // Helper para icono según tipo
   const getIcon = (type: string) => {
-    if (type === 'credit_card') return <HiCreditCard className="w-6 h-6" />;
-    return <HiBanknotes className="w-6 h-6" />;
+    switch (type?.toLowerCase()) {
+      case 'credit_card': return <HiCreditCard className="w-6 h-6" />;
+      case 'savings': return <HiWallet className="w-6 h-6" />;
+      case 'cash': return <HiBanknotes className="w-6 h-6" />;
+      default: return <HiBanknotes className="w-6 h-6" />;
+    }
+  };
+
+  // Helper para etiqueta legible
+  const getLabel = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case 'credit_card': return 'Tarjeta de Crédito';
+      case 'debit_card': return 'Tarjeta de Débito';
+      case 'cash': return 'Efectivo';
+      case 'savings': return 'Apartado / Ahorro';
+      default: return 'Cuenta';
+    }
+  };
+
+  // Helper para color según tipo
+  const getIconBg = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case 'credit_card': return 'bg-secondary/10 text-secondary';
+      case 'savings': return 'bg-primary/10 text-primary';
+      case 'cash': return 'bg-orange-500/10 text-orange-500';
+      default: return 'bg-success/10 text-success';
+    }
   };
 
   return (
     <div className="min-h-screen bg-base-200 pb-24 font-sans relative">
       
       {/* 1. Encabezado */}
-      {/* OUTER DIV: Fondo y Safe Area */}
       <div className="bg-base-100 pt-safe pb-6 px-6 shadow-sm border-b border-base-300">
-        
-        {/* INNER DIV: Agregamos 'mt-4' para separar el título del borde superior */}
         <div className="flex justify-between items-center mt-4">
           <div>
             <h1 className="text-2xl font-black text-base-content tracking-tight">Mis Cuentas</h1>
@@ -106,23 +128,22 @@ const TabCuentas: React.FC = () => {
 
           return (
             <Link 
-              to={`/accounts/${account.account_id}`} 
-              key={account.account_id}
+              to={`/accounts/${account.id}`} 
+              key={account.id}
               className="card bg-base-100 shadow-md active:scale-[0.99] transition-transform duration-200 hover:shadow-lg border border-base-200 block"
             >
               <div className="card-body p-4 flex-row items-center gap-4">
                 
                 {/* Icono Tipo de Cuenta */}
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 
-                  ${account.account_type === 'credit_card' ? 'bg-secondary/10 text-secondary' : 'bg-success/10 text-success'}`}>
-                  {getIcon(account.account_type)}
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${getIconBg(account.type)}`}>
+                  {getIcon(account.type)}
                 </div>
 
                 {/* Info Principal */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base truncate">{account.account_name}</h3>
+                  <h3 className="font-bold text-base truncate">{account.name}</h3>
                   <p className="text-xs text-base-content/50 uppercase tracking-wide">
-                    {account.account_type === 'credit_card' ? 'Tarjeta de Crédito' : 'Efectivo / Débito'}
+                    {getLabel(account.type)}
                   </p>
                 </div>
 

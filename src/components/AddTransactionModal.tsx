@@ -5,9 +5,9 @@ import apiClient from '../services/api';
 import { HiXMark } from 'react-icons/hi2';
 
 interface Account {
-  account_id: number;
-  account_name: string;
-  account_type: string; // Nota: La API devuelve 'account_type' (snake_case)
+  id: number;
+  name: string;
+  type: string;
 }
 
 interface AddTransactionModalProps {
@@ -64,8 +64,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
   }, [isOpen]);
 
   // Buscar la cuenta seleccionada para validar si es tarjeta de crédito
-  const selectedAccount = accounts.find(a => a.account_id === Number(accountId));
-  const isCreditCard = selectedAccount?.account_type?.toUpperCase() === 'CREDIT_CARD';
+  const selectedAccount = accounts.find(a => a.id === Number(accountId));
+  const isCreditCard = selectedAccount?.type?.toUpperCase() === 'CREDIT_CARD';
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,8 +185,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
               >
                 <option value="" disabled>Selecciona una cuenta</option>
                 {accounts.map(acc => (
-                  <option key={acc.account_id} value={acc.account_id}>
-                    {acc.account_name}
+                  <option key={acc.id} value={acc.id}>
+                    {acc.name}
                   </option>
                 ))}
               </select>
