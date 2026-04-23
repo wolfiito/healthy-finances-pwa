@@ -14,6 +14,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRegister, setIsRegister] = useState(false);
 
   // Sistema de Tema Automático
   useEffect(() => {
@@ -33,13 +34,19 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      if (isRegister) {
+        // 1. Crear usuario
+        await apiClient.post('/api/auth/register', { username, password });
+        // 2. Hacer login automáticamente
+      }
       const response = await apiClient.post('/api/auth/login', { username, password });
+      
       if (response.data.token) {
         setToken(response.data.token);
         history.push('/app');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'No pudimos verificar tus datos. Inténtalo de nuevo.');
+      setError(err.response?.data?.error || 'Ocurrió un error. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +72,7 @@ const Login: React.FC = () => {
                 </svg>
               </div>
               <h1 className="text-3xl font-black tracking-tight text-base-content">
-                Bienvenido
+                {isRegister ? 'Crear Cuenta' : 'Bienvenido'}
               </h1>
             </div>
 
@@ -154,17 +161,21 @@ const Login: React.FC = () => {
                 `}
                 disabled={loading}
               >
-                {loading ? 'Iniciando...' : 'Acceder a mi cuenta'}
+                {loading ? 'Procesando...' : isRegister ? 'Regístrate' : 'Acceder a mi cuenta'}
               </button>
 
             </form>
 
             {/* Footer */}
             <div className="mt-6 text-center text-sm text-base-content/60">
-              ¿Aún no tienes cuenta?{' '}
-              <a href="#" className="font-bold text-primary hover:underline">
-                Regístrate gratis
-              </a>
+              {isRegister ? '¿Ya tienes cuenta?' : '¿Aún no tienes cuenta?'}
+              {' '}
+              <button 
+                onClick={() => { setIsRegister(!isRegister); setError(null); }} 
+                className="font-bold text-primary hover:underline cursor-pointer bg-transparent border-none"
+              >
+                {isRegister ? 'Inicia sesión aquí' : 'Regístrate gratis'}
+              </button>
             </div>
 
           </div>

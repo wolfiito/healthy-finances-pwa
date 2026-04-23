@@ -141,9 +141,11 @@ const TabCuentas: React.FC = () => {
 
                 {/* Info Principal */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base truncate">{account.name}</h3>
+                  <h3 className="font-bold text-base truncate">
+                    {account.name || (account as any).account_name}
+                  </h3>
                   <p className="text-xs text-base-content/50 uppercase tracking-wide">
-                    {getLabel(account.type)}
+                    {getLabel(account.type || (account as any).account_type)}
                   </p>
                 </div>
 

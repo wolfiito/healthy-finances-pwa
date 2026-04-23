@@ -141,8 +141,8 @@ const AddRuleModal: React.FC<AddRuleModalProps> = ({ isOpen, onClose }) => {
               >
                 <option value="">Seleccionar cuenta (Opcional)</option>
                 {accounts.map(acc => (
-                  <option key={acc.account_id} value={acc.account_id}>
-                    {acc.account_name}
+                  <option key={acc.id || acc.account_id} value={acc.id || acc.account_id}>
+                    {acc.name || acc.account_name}
                   </option>
                 ))}
               </select>
