@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+    /* Esto hace que el fondo detrás del scroll sea del color de tu tema (base-200) */
+    background-color: var(--fallback-b2,oklch(var(--b2)/1));
+  }
+
+  body {
+    /* Asegura que el body también use ese color y ocupe el mínimo de pantalla */
+    background-color: var(--fallback-b2,oklch(var(--b2)/1));
+    min-height: 100vh;
+  }
+/* --- U
+TILIDADES PERSONALIZADAS --- */
+@layer utilities {
+  /* Ocultar scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Safe Areas (Para iPhone Notch/Isla Dinámica) */
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+  .min-h-safe { min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+}
+
+/* --- TEMA RAINBOW DARK (Verde Bonito) --- */
+@plugin "daisyui/theme" {
+  name: "dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+  
+  --color-base-100: oklch(15% 0.02 240);    /* Fondo Azul Muy Oscuro (Casi negro) */
+  --color-base-200: oklch(12% 0.02 240);    /* Fondo Secundario */
+  --color-base-300: oklch(10% 0.02 240);
+  --color-base-content: oklch(98% 0.01 240);
+  
+  --color-primary: oklch(70% 0.18 150);     /* VERDE MENTA VIBRANTE 💚 */
+  --color-primary-content: oklch(10% 0.1 150);
+  
+  --color-secondary: oklch(65% 0.22 290);   /* Violeta Eléctrico (Toque Rainbow) */
+  --color-secondary-content: oklch(98% 0 0);
+  
+  --color-accent: oklch(80% 0.15 60);       /* Naranja Atardecer */
+  --color-accent-content: oklch(10% 0.05 60);
+  
+  --color-neutral: oklch(25% 0.02 240);
+  --color-neutral-content: oklch(90% 0.01 240);
+  
+  --color-info: oklch(70% 0.15 220);
+  --color-success: oklch(75% 0.18 150);
+  --color-warning: oklch(85% 0.18 85);
+  --color-error: oklch(65% 0.2 25);
+  
+  --radius-selector: 1rem;
+  --radius-field: 1.5rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
+
+/* --- TEMA RAINBOW LIGHT (Rosita Bonito) --- */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  
+  --color-base-100: oklch(99% 0 0);         /* Blanco Puro */
+  --color-base-200: oklch(97% 0.01 320);    /* Blanco con tinte rosita muy sutil */
+  --color-base-300: oklch(94% 0.02 320);
+  --color-base-content: oklch(25% 0.05 280);
+  
+  --color-primary: oklch(65% 0.25 340);     /* ROSA CHICLE BONITO 💖 */
+  --color-primary-content: oklch(99% 0 0);
+  
+  --color-secondary: oklch(75% 0.15 200);   /* Cian Cielo (Toque Rainbow) */
+  --color-secondary-content: oklch(10% 0.05 200);
+  
+  --color-accent: oklch(85% 0.16 90);       /* Amarillo/Lima */
+  --color-accent-content: oklch(20% 0.1 90);
+  
+  --color-neutral: oklch(90% 0.02 280);
+  --color-neutral-content: oklch(30% 0.05 280);
+  
+  --color-info: oklch(60% 0.15 240);
+  --color-success: oklch(65% 0.18 150);
+  --color-warning: oklch(80% 0.15 80);
+  --color-error: oklch(65% 0.22 25);
+  
+  --radius-selector: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1rem;
+  --border: 1px;
+}
