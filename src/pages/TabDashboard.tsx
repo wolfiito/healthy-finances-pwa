@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../services/api';
 import { useDataStore } from '../store/dataStore';
-import CategoryChart from '../components/CategoryChart';
 import { 
   HiHome, 
   HiBanknotes, 
@@ -106,115 +105,31 @@ const TabDashboard: React.FC = () => {
     );
   }
 
+  const monthlyExpenses = upcomingEvents.reduce((total, event) => total + Math.abs(Number(event.amount)), 0);
+
   return (
-    <div className="min-h-screen bg-base-200 pb-24 font-sans">
-      
-      {/* HEADER STICKY & MEDIA LUNA */}
-      <div className="sticky top-0 z-30 bg-base-200">
-        <div className="bg-gradient-to-b from-primary to-primary-focus pt-safe pb-10 px-6 rounded-b-[4rem] shadow-xl relative overflow-hidden">
-           
-           <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#fff7fa] px-4 pb-28 pt-6 text-[#392735]">
+      <header className="mb-5 flex items-center gap-3">
+        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#301d2a] text-lg font-bold text-white">F</div>
+        <div><p className="m-0 font-bold">Tus finanzas</p><p className="m-0 text-xs text-[#9a7184]">Todo claro, a tu manera</p></div>
+      </header>
 
-           <div className="text-center text-primary-content relative z-10 mt-8">
-              <h2 className="text-sm font-medium opacity-80 uppercase tracking-widest mb-1">Saldo Total</h2>
-              <h1 className="text-4xl font-black tracking-tight drop-shadow-sm">
-                {balance !== null ? formatCurrency(balance) : '$0.00'}
-              </h1>
-           </div>
-        </div>
-      </div>
+      <section className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#ef759c] via-[#c94078] to-[#9d245a] px-6 py-6 text-white shadow-[0_16px_32px_rgba(189,66,113,.34)]">
+        <div className="absolute -right-5 -top-11 text-[10rem] leading-none text-white/10">◌</div>
+        <p className="relative m-0 text-sm text-[#ffe4ed]">Saldo disponible</p>
+        <h1 className="relative my-2 text-4xl font-black tracking-tight">{balance !== null ? formatCurrency(balance) : '$0.00'}</h1>
+        <p className="relative m-0 text-xs text-[#ffe4ed]">En efectivo y débito</p>
+        <div className="relative mt-5 flex justify-between border-t border-white/25 pt-3 text-xs text-[#ffe4ed]"><span>Actualizado ahora</span><span>•••</span></div>
+      </section>
 
-      <div className="px-4 mt-8 space-y-6 relative z-0">
+      <section className="my-4 grid grid-cols-2 gap-3">
+        <article className="min-h-32 rounded-[20px] border border-[#f8e4eb] bg-white p-4 shadow-[0_8px_23px_rgba(158,60,99,.06)]"><span className="text-xs text-[#a37c8e]">Gastos próximos</span><strong className="my-3 block text-xl">{formatCurrency(monthlyExpenses)}</strong><span className="text-xs font-bold text-[#ca3d72]">Ver agenda →</span></article>
+        <article className="min-h-32 rounded-[20px] bg-[#2e1e2a] p-4 text-white shadow-[0_8px_23px_rgba(46,30,42,.16)]"><span className="text-xs text-[#e0c4d2]">Pagos del mes</span><strong className="my-3 block text-xl">{upcomingEvents.length}</strong><span className="text-xs font-bold text-[#ffafc9]">Ver pagos →</span></article>
+      </section>
 
-        {/* 2. Tarjeta: Próximos Pagos */}
-        <div className="card bg-base-100 shadow-xl border border-base-200">
-          <div className="card-body p-3">
-            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-4">
-              📅 Próximos Pagos
-            </h3>
-            
-            {upcomingEvents.length === 0 ? (
-              <p className="text-sm text-base-content/50 italic text-center py-4">Todo pagado por este mes 🎉</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {upcomingEvents.map((event, index) => (
-                  <div key={index} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors">
-                    
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getColorForEvent(event.description)}`}>
-                      {getIconForEvent(event.description)}
-                    </div>
+      <section className="mb-4 rounded-[22px] border border-[#f6e2ea] bg-white p-5 shadow-[0_8px_25px_rgba(157,59,97,.05)]"><h2 className="mb-3 text-base font-bold">Actividad reciente</h2>{recentTransactions.length === 0 ? <p className="m-0 text-sm text-[#a17b8d]">Aún no hay información por aquí.</p> : <div className="space-y-3">{recentTransactions.slice(0, 3).map(tx => { const expense = Number(tx.amount) < 0; return <div key={tx.id} className="flex items-center gap-3"><div className={`grid h-9 w-9 place-items-center rounded-xl ${expense ? 'bg-[#fff0f4] text-[#db4c7e]' : 'bg-[#ebf8f1] text-[#309674]'}`}>{expense ? <HiArrowTrendingDown className="h-5 w-5"/> : <HiArrowTrendingUp className="h-5 w-5"/>}</div><div className="min-w-0 flex-1"><p className="m-0 truncate text-sm font-bold">{tx.description}</p><p className="m-0 text-xs text-[#a17b8d]">{new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p></div><span className={`text-sm font-bold ${expense ? 'text-[#cb416f]' : 'text-[#309674]'}`}>{expense ? '' : '+'}{formatCurrency(tx.amount)}</span></div>})}</div>}</section>
 
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-sm truncate">{event.description}</h4>
-                      <p className="text-xs text-base-content/60">
-                        {new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
-                      </p>
-                    </div>
-                    <div className="font-bold text-error">
-                      {formatCurrency(event.amount)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 3. Tarjeta: Últimos Movimientos (SOLO 3) */}
-        <div className="card bg-base-100 shadow-xl border border-base-200">
-          <div className="card-body p-5">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="card-title text-sm uppercase text-base-content/60 font-bold">
-                💸 Últimos Movimientos
-              </h3>
-              {/* Opcional: Link para ver todos si el usuario quiere */}
-              {/* <span className="text-xs text-primary font-bold cursor-pointer">Ver todos</span> */}
-            </div>
-
-            {recentTransactions.length === 0 ? (
-              <p className="text-sm text-base-content/50 italic text-center py-4">Sin movimientos aún</p>
-            ) : (
-              // SIN Scrollbar, SIN max-height, lista plana
-              <div className="flex flex-col gap-3">
-                {/* AQUI ESTA LA MAGIA: .slice(0, 3) */}
-                {recentTransactions.slice(0, 3).map((tx) => {
-                  const isNegative = parseFloat(tx.amount) < 0;
-                  return (
-                    <div key={tx.id} className="flex items-center gap-4 p-2 rounded-xl hover:bg-base-200/50 transition-colors shrink-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 
-                        ${isNegative ? 'bg-error/10 text-error' : 'bg-success/10 text-success'}`}>
-                        {isNegative ? <HiArrowTrendingDown className="w-5 h-5"/> : <HiArrowTrendingUp className="w-5 h-5"/>}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm truncate">{tx.description}</h4>
-                        <p className="text-xs text-base-content/60">
-                          {new Date(tx.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
-                        </p>
-                      </div>
-                      <div className={`font-bold ${isNegative ? 'text-base-content' : 'text-success'}`}>
-                        {isNegative ? '' : '+'}{formatCurrency(tx.amount)}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 4. Tarjeta: Gráfico */}
-        <div className="card bg-base-100 shadow-xl border border-base-200 mb-6">
-          <div className="card-body p-5">
-            <h3 className="card-title text-sm uppercase text-base-content/60 font-bold mb-2">
-              📊 Gastos por Categoría
-            </h3>
-            <div className="h-64 w-full flex items-center justify-center">
-               <CategoryChart transactions={recentTransactions} />
-            </div>
-          </div>
-        </div>
-
-      </div>
+      <section className="rounded-[22px] border border-[#f6e2ea] bg-white p-5 shadow-[0_8px_25px_rgba(157,59,97,.05)]"><h2 className="mb-3 text-base font-bold">Próximos pagos</h2>{upcomingEvents.length === 0 ? <p className="m-0 text-sm text-[#a17b8d]">Aún no hay información por aquí.</p> : <div className="space-y-3">{upcomingEvents.slice(0, 3).map((event, index) => <div key={index} className="flex items-center gap-3"><div className={`grid h-9 w-9 place-items-center rounded-xl ${getColorForEvent(event.description)}`}>{getIconForEvent(event.description)}</div><div className="min-w-0 flex-1"><p className="m-0 truncate text-sm font-bold">{event.description}</p><p className="m-0 text-xs text-[#a17b8d]">{new Date(event.date).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}</p></div><span className="text-sm font-bold text-[#cb416f]">{formatCurrency(event.amount)}</span></div>)}</div>}</section>
     </div>
   );
 };
