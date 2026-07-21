@@ -60,6 +60,54 @@ TILIDADES PERSONALIZADAS --- */
   --border: 1px;
 }
 
+/* --- NAVEGACIÓN FINANZAS: interfaz móvil rosa --- */
+.finance-dock__surface {
+  background: rgba(255, 251, 253, 0.96);
+  border: 1px solid rgba(220, 87, 145, 0.2);
+  box-shadow: 0 -10px 32px rgba(101, 38, 72, 0.12);
+}
+
+.finance-nav-button {
+  color: #9d7387;
+  font-size: 0.68rem;
+}
+
+.finance-nav-button--active {
+  color: #c9437c;
+}
+
+.finance-nav-button--idle:hover {
+  color: #6f304e;
+}
+
+.finance-fab {
+  border-color: #fff7fb;
+  background: #301d2a;
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(76, 29, 58, 0.3);
+}
+
+.finance-quick-actions {
+  padding: 0 1rem;
+}
+
+.finance-action {
+  min-width: 3.65rem;
+  color: #7a3156;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.9);
+}
+
+.finance-action > div {
+  box-shadow: 0 10px 22px rgba(101, 38, 72, 0.2);
+}
+
+.finance-action--rule > div { background: #8d61d9; }
+.finance-action--debt > div { background: #e76496; }
+.finance-action--income > div { background: #dd5590; }
+.finance-action--expense > div { background: #c9437c; }
+
 /* --- TEMA RAINBOW LIGHT (Rosita Bonito) --- */
 @plugin "daisyui/theme" {
   name: "light";

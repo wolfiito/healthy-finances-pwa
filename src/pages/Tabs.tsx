@@ -18,7 +18,6 @@ import AddDebtModal from '../components/AddDebtModal';
 // Iconos
 import { 
   HiHome, 
-  HiSquares2X2, 
   HiChartBar, 
   HiCog6Tooth,
   HiPlus,
@@ -40,11 +39,11 @@ const Tabs: React.FC = () => {
   const isActive = (path: string) => location.pathname.includes(path);
 
   const navBtnClass = (active: boolean) => `
-    flex flex-col items-center justify-center w-full h-full pt-2 pb-1
+    finance-nav-button flex flex-col items-center justify-center w-full h-full pt-2 pb-1
     transition-all duration-200 active:scale-95
     ${active 
-      ? 'text-primary' 
-      : 'text-base-content/40 hover:text-base-content/70'
+      ? 'finance-nav-button--active'
+      : 'finance-nav-button--idle'
     }
   `;
 
@@ -70,40 +69,40 @@ const Tabs: React.FC = () => {
       {/* --- MENÚ EXPANDIBLE (Overlay) --- */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-40 bg-[#2f1a28]/35 backdrop-blur-[2px]"
           onClick={() => setIsMenuOpen(false)}
         ></div>
       )}
 
       {/* --- BOTONES DEL MENÚ EXPANDIBLE --- */}
-      <div className={`fixed bottom-28 left-0 right-0 z-50 flex justify-center gap-5 transition-all duration-300 ${isMenuOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
+      <div className={`finance-quick-actions fixed bottom-28 left-0 right-0 z-50 flex justify-center gap-4 transition-all duration-300 ${isMenuOpen ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
          
-         <button onClick={() => handleMenuAction('rule')} className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full bg-secondary text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+         <button onClick={() => handleMenuAction('rule')} className="finance-action finance-action--rule flex flex-col items-center gap-2">
+            <div className="w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
                <HiScale className="w-7 h-7" />
             </div>
-            <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-lg backdrop-blur-md">Regla</span>
+            <span>Regla</span>
          </button>
 
-         <button onClick={() => handleMenuAction('debt')} className="flex flex-col items-center gap-2 -mt-10">
-            <div className="w-14 h-14 rounded-full bg-error text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+         <button onClick={() => handleMenuAction('debt')} className="finance-action finance-action--debt flex flex-col items-center gap-2 -mt-10">
+            <div className="w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
                <HiReceiptPercent className="w-7 h-7" />
             </div>
-            <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-lg backdrop-blur-md">Deuda</span>
+            <span>Deuda</span>
          </button>
 
-         <button onClick={() => handleMenuAction('income')} className="flex flex-col items-center gap-2 -mt-10">
-            <div className="w-14 h-14 rounded-full bg-success text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+         <button onClick={() => handleMenuAction('income')} className="finance-action finance-action--income flex flex-col items-center gap-2 -mt-10">
+            <div className="w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
                <HiBanknotes className="w-7 h-7" />
             </div>
-            <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-lg backdrop-blur-md">Ingreso</span>
+            <span>Ingreso</span>
          </button>
 
-         <button onClick={() => handleMenuAction('expense')} className="flex flex-col items-center gap-2">
-            <div className="w-14 h-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+         <button onClick={() => handleMenuAction('expense')} className="finance-action finance-action--expense flex flex-col items-center gap-2">
+            <div className="w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center active:scale-90 transition-transform">
                <HiCreditCard className="w-7 h-7" />
             </div>
-            <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-lg backdrop-blur-md">Gasto</span>
+            <span>Gasto</span>
          </button>
       </div>
 
@@ -124,23 +123,21 @@ const Tabs: React.FC = () => {
       </div>
 
       {/* --- BARRA DE NAVEGACIÓN "DOCKED" --- */}
-      <div className="fixed bottom-0 left-0 w-full z-50">
+      <div className="finance-dock fixed bottom-0 left-0 w-full z-50">
         {/* Fondo curvado */}
-        <div className="absolute bottom-0 w-full h-24 bg-base-100 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] pb-safe rounded-t-[2rem]"></div>
+        <div className="finance-dock__surface absolute bottom-0 w-full h-24 pb-safe rounded-t-[2rem]"></div>
 
         <div className="relative flex justify-between items-end w-full h-24 pb-safe px-2">
           
           {/* IZQUIERDA */}
           <div className="flex w-2/5 justify-around h-full items-center pt-2">
             <Link to="/app/dashboard" className={navBtnClass(isActive('/dashboard'))}>
-              {/* CAMBIO AQUÍ: w-8 h-8 (Antes w-6 h-6) */}
-              <HiHome className={`w-8 h-8 mb-1 ${isActive('/dashboard') ? 'drop-shadow-sm' : ''}`} />
-              {/* CAMBIO AQUÍ: text-xs (Antes text-[10px]) */}
+              <HiHome className="w-6 h-6 mb-1" />
               <span className="text-xs font-bold">Inicio</span>
             </Link>
-            <Link to="/app/ver-mas" className={navBtnClass(isActive('/ver-mas'))}>
-              <HiSquares2X2 className={`w-8 h-8 mb-1 ${isActive('/ver-mas') ? 'drop-shadow-sm' : ''}`} />
-              <span className="text-xs font-bold">Más</span>
+            <Link to="/app/cuentas" className={navBtnClass(isActive('/cuentas'))}>
+              <HiCreditCard className="w-6 h-6 mb-1" />
+              <span className="text-xs font-bold">Cuentas</span>
             </Link>
           </div>
 
@@ -148,8 +145,8 @@ const Tabs: React.FC = () => {
           <div className="relative -top-8 w-1/5 flex justify-center">
              <button 
                onClick={() => setIsMenuOpen(!isMenuOpen)}
-               className={`w-16 h-16 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center transition-transform duration-300 border-[6px] border-base-200
-               ${isMenuOpen ? 'bg-base-content text-base-100 rotate-45' : 'bg-primary text-white rotate-0'}`}
+               className={`finance-fab w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-transform duration-300 border-[6px]
+               ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}
              >
                <HiPlus className="w-8 h-8" />
              </button>
@@ -158,11 +155,11 @@ const Tabs: React.FC = () => {
           {/* DERECHA */}
           <div className="flex w-2/5 justify-around h-full items-center pt-2">
             <Link to="/app/proyeccion" className={navBtnClass(isActive('/proyeccion'))}>
-              <HiChartBar className={`w-8 h-8 mb-1 ${isActive('/proyeccion') ? 'drop-shadow-sm' : ''}`} />
-              <span className="text-xs font-bold">Futuro</span>
+              <HiChartBar className="w-6 h-6 mb-1" />
+              <span className="text-xs font-bold">Proyección</span>
             </Link>
             <Link to="/app/ajustes" className={navBtnClass(isActive('/ajustes'))}>
-              <HiCog6Tooth className={`w-8 h-8 mb-1 ${isActive('/ajustes') ? 'drop-shadow-sm' : ''}`} />
+              <HiCog6Tooth className="w-6 h-6 mb-1" />
               <span className="text-xs font-bold">Ajustes</span>
             </Link>
           </div>
