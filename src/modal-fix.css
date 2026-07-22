@@ -1,0 +1,13 @@
+/* Los diálogos deben quedar por encima de la barra de navegación. */
+.modal-backdrop {
+  z-index: 100 !important;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.composer {
+  padding-bottom: calc(30px + env(safe-area-inset-bottom));
+}
+
+.loading {
+  z-index: 110;
+}
