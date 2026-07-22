@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type Theme = 'light';
+type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeState {
   theme: Theme;
@@ -9,21 +9,21 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  theme: 'system',
+  theme: 'light',
 
   init: () => {
     applyThemeToDocument('light');
     set({ theme: 'light' });
   },
 
-  setTheme: (newTheme) => {
+  setTheme: (_newTheme) => {
     applyThemeToDocument('light');
     set({ theme: 'light' });
   },
 }));
 
 // Función Helper para aplicar el atributo data-theme al HTML
-const applyThemeToDocument = (theme: Theme) => {
+const applyThemeToDocument = (_theme: Theme) => {
   const root = document.documentElement;
   
   root.setAttribute('data-theme', 'light');
