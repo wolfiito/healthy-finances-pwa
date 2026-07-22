@@ -19,6 +19,7 @@ function App() {
   const [username, setUsername] = useState(() => localStorage.getItem('finance_username'))
   const [data, setData] = useState({ accounts: [], transactions: [], debts: [], rules: [], payments: [], balance: null })
   const [active, setActive] = useState('home')
+  const [selectedAccount, setSelectedAccount] = useState(null)
   const [quickOpen, setQuickOpen] = useState(false)
   const [composer, setComposer] = useState(null)
   const [notice, setNotice] = useState('')
@@ -42,7 +43,8 @@ function App() {
     <header className="topbar"><div className="avatar">{username?.slice(0, 1).toUpperCase()}</div><div><p className="welcome">Hola, {username}</p><p className="date-label">Así van tus finanzas</p></div><button className="icon-button" onClick={refresh} title="Actualizar">↻</button></header>
     {notice && <p className="notice">{notice}</p>}
     {active === 'home' && <Home data={data} onNavigate={setActive} />}
-    {active === 'accounts' && <Accounts data={data} onSave={save} />}
+    {active === 'accounts' && <Accounts data={data} onSave={save} onOpenAccount={(account) => { setSelectedAccount(account); setActive('account-detail') }} />}
+    {active === 'account-detail' && <AccountMovements account={selectedAccount} token={token} onBack={() => setActive('accounts')} />}
     {active === 'projection' && <Projection token={token} balance={data.balance} />}
     {active === 'settings' && <Settings username={username} onLogout={logout} />}
     {composer && <Composer kind={composer} accounts={data.accounts} onSave={save} onClose={() => setComposer(null)} />}
@@ -56,9 +58,16 @@ function Home({ data, onNavigate }) {
   return <section className="screen"><section className="balance-card"><div><p>Saldo disponible</p><strong>{money.format(balance)}</strong><small>En efectivo y débito</small></div><span className="balance-orbit">◌</span><div className="balance-footer"><span>Actualizado ahora</span><span>•••</span></div></section><section className="summary-grid"><article><span>Gastos próximos</span><strong>{money.format(data.payments.reduce((sum, item) => sum + Math.abs(Number(item.amount)), 0))}</strong><button onClick={() => onNavigate('accounts')}>Ver agenda →</button></article><article><span>Deuda pendiente</span><strong>{money.format(debtTotal)}</strong><button onClick={() => onNavigate('accounts')}>Ver deudas →</button></article></section><Panel title="Actividad reciente"><Rows items={data.transactions.slice(0, 5)} kind="transactions" /></Panel><Panel title="Próximos pagos"><Rows items={data.payments.slice(0, 3)} kind="payments" /></Panel></section>
 }
 
-function Accounts({ data, onSave }) {
+function Accounts({ data, onSave, onOpenAccount }) {
   const expenses = data.transactions.filter((item) => Number(item.amount) < 0)
-  return <section className="screen"><SectionHeading title="Cuentas" subtitle="Tus cuentas, reglas e historial" /><AccountForm onSave={onSave} /><Panel title="Mis cuentas"><Rows items={data.accounts} kind="accounts" /></Panel><Panel title="Reglas fijas"><Rows items={data.rules} kind="rules" /></Panel><Panel title="Historial de gastos"><Rows items={expenses} kind="transactions" /></Panel></section>
+  return <section className="screen"><SectionHeading title="Cuentas" subtitle="Tus cuentas, reglas e historial" /><AccountForm onSave={onSave} /><Panel title="Mis cuentas">{data.accounts.length ? <div className="rows">{data.accounts.map((account) => <button key={account.account_id} className="settings-row" onClick={() => onOpenAccount(account)}><span><b>{account.account_name}</b><small>{account.account_type}</small></span><strong>{money.format(Number(account.current_balance || 0))} ›</strong></button>)}</div> : <p className="empty">Aún no hay cuentas.</p>}</Panel><Panel title="Reglas fijas"><Rows items={data.rules} kind="rules" /></Panel><Panel title="Historial de gastos"><Rows items={expenses} kind="transactions" /></Panel></section>
+}
+
+function AccountMovements({ account, token, onBack }) {
+  const [transactions, setTransactions] = useState([]); const [error, setError] = useState('');
+  useEffect(() => { if (!account) return; request(`/api/accounts/${account.account_id}/transactions`, { token }).then((result) => setTransactions(result.transactions || [])).catch((e) => setError(e.message)) }, [account, token]);
+  if (!account) return null;
+  return <section className="screen"><button className="text-button" onClick={onBack}>← Volver a cuentas</button><SectionHeading title={account.account_name} subtitle={account.account_type} /><section className="projection-hero"><span>Saldo actual</span><strong>{money.format(Number(account.current_balance || 0))}</strong></section><Panel title="Movimientos">{error ? <p className="error">{error}</p> : <Rows items={transactions} kind="transactions" />}</Panel></section>
 }
 
 function Projection({ token, balance }) {
