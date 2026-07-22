@@ -32,6 +32,7 @@ const Tabs: React.FC = () => {
   
   // Estados
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<'expense' | 'income'>('expense');
   const [isRuleModalOpen, setIsRuleModalOpen] = useState(false);
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
@@ -50,6 +51,7 @@ const Tabs: React.FC = () => {
   const handleMenuAction = (action: string) => {
     setIsMenuOpen(false);
     if (action === 'expense' || action === 'income') {
+      setTransactionType(action);
       setIsTxModalOpen(true); 
     } else if (action === 'rule') {
        setIsRuleModalOpen(true); 
@@ -62,7 +64,7 @@ const Tabs: React.FC = () => {
     <div className="min-h-screen w-full bg-base-200">
       
       {/* --- MODALES --- */}
-      <AddTransactionModal isOpen={isTxModalOpen} onClose={() => setIsTxModalOpen(false)} />
+      <AddTransactionModal isOpen={isTxModalOpen} initialType={transactionType} onClose={() => setIsTxModalOpen(false)} />
       <AddRuleModal isOpen={isRuleModalOpen} onClose={() => setIsRuleModalOpen(false)} />
       <AddDebtModal isOpen={isDebtModalOpen} onClose={() => setIsDebtModalOpen(false)} />
 

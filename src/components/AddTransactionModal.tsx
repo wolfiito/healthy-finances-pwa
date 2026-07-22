@@ -13,6 +13,7 @@ interface Account {
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialType?: 'expense' | 'income';
 }
 
 const GASTO_CATEGORIES = [
@@ -20,7 +21,7 @@ const GASTO_CATEGORIES = [
   "Transporte", "Oxxo", "Tecnologia", "Otros"
 ];
 
-const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClose }) => {
+const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClose, initialType = 'expense' }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +38,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
   const triggerRefresh = useDataStore((state) => state.triggerRefresh);
 
   const resetForm = () => {
-    setType('expense');
+    setType(initialType);
     setDescription('');
     setAmount('');
     setAccountId('');
@@ -61,7 +62,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
       };
       fetchAccounts();
     }
-  }, [isOpen]);
+  }, [isOpen, initialType]);
 
   // Buscar la cuenta seleccionada para validar si es tarjeta de crédito
   const selectedAccount = accounts.find(a => a.id === Number(accountId));
@@ -130,24 +131,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
               </div>
             )}
 
-            {/* Tipo (Segmented Control) */}
-            <div className="join w-full grid grid-cols-2">
-              <input 
-                className="join-item btn" 
-                type="radio" 
-                name="type" 
-                aria-label="Gasto"
-                checked={type === 'expense'}
-                onChange={() => setType('expense')}
-              />
-              <input 
-                className="join-item btn" 
-                type="radio" 
-                name="type" 
-                aria-label="Ingreso" 
-                checked={type === 'income'}
-                onChange={() => setType('income')}
-              />
+            <div className={`rounded-xl px-4 py-3 text-sm font-bold ${type === 'expense' ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+              {type === 'expense' ? 'Registrar gasto' : 'Registrar ingreso'}
             </div>
 
             {/* Descripción */}
