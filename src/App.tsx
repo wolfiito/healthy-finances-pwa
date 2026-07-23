@@ -38,14 +38,28 @@ function App() {
       request('get', '/api/debts/'), request('get', '/api/rules/'), request('get', '/api/summary/categories'),
       request('get', '/api/summary/monthly_payments'), request('get', '/api/transactions/balance'),
     ])
+    const failures = calls.filter((call) => call.status === 'rejected')
+    const expiredSession = failures.length === calls.length && failures.every((call) => call.reason?.status === 401)
+    if (expiredSession) {
+      localStorage.removeItem('token')
+      setData(emptyData)
+      setLoading(false)
+      setToken('')
+      return
+    }
     const value = (index, fallback) => calls[index].status === 'fulfilled' ? calls[index].value : fallback
     const transactionResult = value(1, [])
+    const accounts = value(0, [])
+    const balanceFromAccounts = accounts
+      .filter((item) => ['cash', 'debit_card'].includes(item.account_type || item.type))
+      .reduce((total, item) => total + Number(item.current_balance || 0), 0)
     setData({
-      accounts: value(0, []), transactions: Array.isArray(transactionResult) ? transactionResult : transactionResult.items || [],
+      accounts, transactions: Array.isArray(transactionResult) ? transactionResult : transactionResult.items || [],
       transactionMeta: Array.isArray(transactionResult) ? null : transactionResult.pagination,
       debts: value(2, []), rules: value(3, []), categories: value(4, []), payments: value(5, []),
-      balance: value(6, { current_balance: '0.00' }).current_balance || '0.00',
+      balance: value(6, null)?.current_balance ?? balanceFromAccounts,
     })
+    if (failures.length) setNotice('Parte de tu información no se pudo actualizar. Toca recargar para intentarlo otra vez.')
     setLoading(false)
   }
 
@@ -86,7 +100,7 @@ function App() {
       {notice && <div className="toast">{notice}<button onClick={() => setNotice('')}>×</button></div>}
       {content}
     </main>
-    <ActionDock screen={screen} setScreen={setScreen} open={setDialog} />
+    <ActionDock screen={screen} setScreen={setScreen} open={setDialog} logout={logout} />
     {dialog && <Dialog type={dialog.type} item={dialog.item} accounts={data.accounts} onClose={() => setDialog(null)} save={save} />}
   </div>
 }
@@ -117,7 +131,24 @@ function Brand() { return <div className="brand"><span>f</span><b>floréa</b></d
 function Topbar({ title, onRefresh, loading }) { const titles = { dashboard: ['Hola de nuevo', 'Tu resumen de hoy'], activity: ['Movimientos', 'Cada detalle cuenta'], wallet: ['Mi dinero', 'Cuentas y compromisos'], rules: ['Reglas fijas', 'Tus pagos en automático'], projection: ['Proyección', 'Mira con calma hacia adelante'], settings: ['Ajustes', 'Hazlo tuyo'] }; return <header className="topbar"><div><p className="eyebrow">{titles[title][1]}</p><h1>{titles[title][0]}</h1></div><button className="icon-button" onClick={onRefresh} aria-label="Actualizar"> <FiRefreshCw className={loading ? 'spin' : ''} /></button></header> }
 
 function FloatingNav({ screen, setScreen, open, logout }) { const nav = [[FiHome, 'dashboard', 'Ahora'], [FiActivity, 'activity', 'Bitácora'], [FiCreditCard, 'wallet', 'Bolsillos'], [FiRepeat, 'rules', 'Rituales'], [FiTrendingUp, 'projection', 'Mañana']]; return <header className="floating-nav"><Brand /><nav>{nav.map(([Icon, id, label]) => <button key={id} className={screen === id ? 'selected' : ''} onClick={() => setScreen(id)}><Icon /><span>{label}</span></button>)}</nav><div className="nav-end"><button className="nav-add" onClick={() => open({ type: 'transaction' })}><FiPlus /><span>Apuntar</span></button><button className="nav-settings" onClick={() => setScreen('settings')} aria-label="Ajustes"><FiSettings /></button><button className="nav-logout" onClick={logout} aria-label="Salir"><FiLogOut /></button></div></header> }
-function ActionDock({ screen, setScreen, open }) { const nav = [[FiHome, 'dashboard', 'Ahora'], [FiActivity, 'activity', 'Bitácora'], [FiPlus, 'add', 'Apuntar'], [FiCreditCard, 'wallet', 'Bolsillos'], [FiTrendingUp, 'projection', 'Mañana']]; return <nav className="action-dock">{nav.map(([Icon, id, label]) => id === 'add' ? <button key={id} className="dock-add" onClick={() => open({ type: 'transaction' })}><Icon /><small>{label}</small></button> : <button key={id} className={screen === id ? 'selected' : ''} onClick={() => setScreen(id)}><Icon /><small>{label}</small></button>)}</nav> }
+function ActionDock({ screen, setScreen, open, logout }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const nav = [[FiHome, 'dashboard', 'Ahora'], [FiActivity, 'activity', 'Bitácora'], [FiCreditCard, 'wallet', 'Bolsillos']]
+  const navigate = (destination) => { setScreen(destination); setMenuOpen(false) }
+  return <>
+    {menuOpen && <section className="mobile-more" aria-label="Más opciones">
+      <button onClick={() => navigate('rules')}><span className="more-lilac"><FiRepeat /></span><div><b>Reglas</b><small>Automatiza tus pagos</small></div></button>
+      <button onClick={() => navigate('projection')}><span className="more-yellow"><FiTrendingUp /></span><div><b>Proyección</b><small>Ve lo que viene</small></div></button>
+      <button onClick={() => navigate('settings')}><span className="more-pink"><FiSettings /></span><div><b>Ajustes</b><small>Tu espacio</small></div></button>
+      <button className="mobile-logout" onClick={logout}><span><FiLogOut /></span><div><b>Cerrar sesión</b><small>Salir de esta cuenta</small></div></button>
+    </section>}
+    <nav className="action-dock">
+      {nav.map(([Icon, id, label]) => <button key={id} className={screen === id ? 'selected' : ''} onClick={() => navigate(id)}><Icon /><small>{label}</small></button>)}
+      <button className="dock-add" onClick={() => { setMenuOpen(false); open({ type: 'transaction' }) }}><FiPlus /><small>Apuntar</small></button>
+      <button className={menuOpen ? 'selected dock-menu' : 'dock-menu'} onClick={() => setMenuOpen(!menuOpen)}><FiMenu /><small>Más</small></button>
+    </nav>
+  </>
+}
 
 function Dashboard({ data, open, go }) {
   const balance = Number(data.balance || 0)

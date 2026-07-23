@@ -15,7 +15,10 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(new Error(error.response?.data?.error || 'No fue posible conectar con la API.')),
+  (error) => Promise.reject(Object.assign(
+    new Error(error.response?.data?.error || 'No fue posible conectar con la API.'),
+    { status: error.response?.status },
+  )),
 )
 
 export default client
