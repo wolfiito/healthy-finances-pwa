@@ -11,3 +11,8 @@
 .loading {
   z-index: 110;
 }
+
+.expense-chart { display: grid; gap: 12px; }
+.expense-chart div { display: grid; grid-template-columns: 86px 1fr auto; gap: 9px; align-items: center; font-size: .75rem; color: #7a5264; }
+.expense-chart i { display: block; min-height: 9px; border-radius: 999px; background: linear-gradient(90deg, #f19aba, #c83e71); }
+.expense-chart b { color: #553443; font-size: .74rem; }
