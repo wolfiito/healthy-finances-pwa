@@ -13,9 +13,20 @@ const emptyData = { accounts: [], transactions: [], debts: [], rules: [], catego
 
 const accountNames = { cash: 'Efectivo', debit_card: 'Débito', credit_card: 'Crédito' }
 const frequencyNames = { once: 'Una vez', daily: 'Diaria', weekly: 'Semanal', bi_weekly: 'Quincenal', monthly: 'Mensual', yearly: 'Anual' }
+function useMobileViewport() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 850)
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 850px)')
+    const update = () => setIsMobile(media.matches)
+    update(); media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+  return isMobile
+}
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem('token') || '')
+  const isMobile = useMobileViewport()
   const [screen, setScreen] = useState('dashboard')
   const [data, setData] = useState(emptyData)
   const [loading, setLoading] = useState(false)
@@ -94,7 +105,7 @@ function App() {
   }[screen]
 
   return <div className="app-layout">
-    <FloatingNav screen={screen} setScreen={setScreen} open={setDialog} logout={logout} />
+    {!isMobile && <FloatingNav screen={screen} setScreen={setScreen} open={setDialog} logout={logout} />}
     <main className="main-content">
       <Topbar title={screen} onRefresh={load} loading={loading} />
       {notice && <div className="toast">{notice}<button onClick={() => setNotice('')}>×</button></div>}
