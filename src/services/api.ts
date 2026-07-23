@@ -1,46 +1,27 @@
-// En: src/services/api.ts
+import axios from 'axios'
 
-import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL || 'https://tazcito.pythonanywhere.com'
 
-// 1. Tu URL de backend
-const API_URL = 'https://tazcito.pythonanywhere.com';
-
-// 2. Creamos una "instancia" de axios
-const apiClient = axios.create({
+const client = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  headers: { 'Content-Type': 'application/json' },
+})
 
-// 3. El Interceptor para añadir el token a cada petición
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['x-access-token'] = token;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers['x-access-token'] = token
+  return config
+})
 
-// 4. ¡NUEVO! Funciones específicas de la API
-// Esta es la función que faltaba.
-export const getAccountsSummary = () => {
-  // Simplemente hace una llamada GET al endpoint de resumen de cuentas.
-  return apiClient.get('/api/accounts/summary');
-};
+client.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject(new Error(error.response?.data?.error || 'No fue posible conectar con la API.')),
+)
 
-export const getRules = () => {
-  return apiClient.get('/api/rules/');
-};
+export default client
 
-export const deleteRule = (ruleId: number) => {
-  return apiClient.delete(`/api/rules/${ruleId}`);
-};
-
-// 5. Exportamos el cliente pre-configurado como default
-export default apiClient;
+// Compatibilidad con componentes antiguos que permanecen en el proyecto pero
+// ya no forman parte de la nueva interfaz.
+export const getAccountsSummary = () => client.get('/api/accounts/summary')
+export const getRules = () => client.get('/api/rules/')
+export const deleteRule = (ruleId: number) => client.delete(`/api/rules/${ruleId}`)
