@@ -11,7 +11,7 @@ const money = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN
 const today = new Date().toISOString().slice(0, 10)
 const emptyData = { accounts: [], transactions: [], debts: [], rules: [], categories: [], payments: [], balance: '0.00' }
 
-const accountNames = { cash: 'Efectivo', debit_card: 'Débito', credit_card: 'Crédito' }
+const accountNames = { cash: 'Efectivo', debit_card: 'Débito', credit_card: 'Crédito', savings: 'Ahorros' }
 const frequencyNames = { once: 'Una vez', daily: 'Diaria', weekly: 'Semanal', bi_weekly: 'Quincenal', monthly: 'Mensual', yearly: 'Anual' }
 function useMobileViewport() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 850)
