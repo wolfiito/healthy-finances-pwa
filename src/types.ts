@@ -136,7 +136,7 @@ export type SaveFn = (
   payload: unknown,
   success: string,
 ) => Promise<void>
-export type RemoveFn = (url: string, label: string) => Promise<void>
+export type RemoveFn = (url: string, label: string) => void
 export type OpenFn = (dialog: DialogState | null) => void
 
 export interface SimulationEvent {

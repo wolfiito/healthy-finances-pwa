@@ -91,6 +91,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState('')
   const [dialog, setDialog] = useState<DialogState | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{ url: string; label: string } | null>(null)
   const [transactionFilters, setTransactionFilters] = useState<Filters>({
     page: 1,
     type: '',
@@ -193,8 +194,14 @@ function App() {
       message(mensajeDeError(error))
     }
   }
-  const remove: RemoveFn = async (url, label) => {
-    if (!window.confirm(`¿Eliminar ${label}? Esta acción no se puede deshacer.`)) return
+  // Pedir la confirmacion dentro de la app en vez de usar window.confirm,
+  // que abre el cuadro gris del sistema encima de la interfaz.
+  const remove: RemoveFn = (url, label) => setPendingDelete({ url, label })
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return
+    const { url } = pendingDelete
+    setPendingDelete(null)
     try {
       await request('delete', url)
       message('Eliminado correctamente.')
@@ -256,6 +263,13 @@ function App() {
         {content}
       </main>
       <ActionDock screen={screen} setScreen={setScreen} open={setDialog} logout={logout} />
+      {pendingDelete && (
+        <ConfirmDialog
+          label={pendingDelete.label}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
       {dialog && (
         <Dialog
           type={dialog.type}
@@ -286,7 +300,7 @@ function Auth({ onLogin }: { onLogin: (token: string) => void }) {
   return (
     <div className="auth-page auth-simple-page">
       <section className="auth-card auth-simple-card">
-        <h1>Entrar a mis finanzas</h1>
+        <h1>Iniciar sesión</h1>
         <form onSubmit={submit} className="form-stack">
           <Field
             label="Usuario"
@@ -331,12 +345,12 @@ function Topbar({
   loading: boolean
 }) {
   const titles = {
-    dashboard: ['Hola de nuevo', 'Tu resumen de hoy'],
-    activity: ['Movimientos', 'Cada detalle cuenta'],
-    wallet: ['Mi dinero', 'Cuentas y compromisos'],
-    rules: ['Reglas fijas', 'Tus pagos en automático'],
-    projection: ['Proyección', 'Mira con calma hacia adelante'],
-    settings: ['Ajustes', 'Hazlo tuyo'],
+    dashboard: ['Resumen', 'Tu dinero hoy'],
+    activity: ['Movimientos', 'Todo lo registrado'],
+    wallet: ['Cuentas', 'Cuentas, deudas y reglas'],
+    rules: ['Reglas fijas', 'Pagos y cobros recurrentes'],
+    projection: ['Proyección', 'Estimación a futuro'],
+    settings: ['Ajustes', 'Configuración'],
   }
   return (
     <header className="topbar">
@@ -364,11 +378,11 @@ function FloatingNav({
   logout: () => void
 }) {
   const nav: [IconType, Screen, string][] = [
-    [FiHome, 'dashboard', 'Ahora'],
-    [FiActivity, 'activity', 'Bitácora'],
-    [FiCreditCard, 'wallet', 'Bolsillos'],
-    [FiRepeat, 'rules', 'Rituales'],
-    [FiTrendingUp, 'projection', 'Mañana'],
+    [FiHome, 'dashboard', 'Resumen'],
+    [FiActivity, 'activity', 'Movimientos'],
+    [FiCreditCard, 'wallet', 'Cuentas'],
+    [FiRepeat, 'rules', 'Reglas'],
+    [FiTrendingUp, 'projection', 'Proyección'],
   ]
   return (
     <header className="floating-nav">
@@ -388,7 +402,7 @@ function FloatingNav({
       <div className="nav-end">
         <button className="nav-add" onClick={() => open({ type: 'transaction' })}>
           <FiPlus />
-          <span>Apuntar</span>
+          <span>Agregar</span>
         </button>
         <button className="nav-settings" onClick={() => setScreen('settings')} aria-label="Ajustes">
           <FiSettings />
@@ -453,7 +467,7 @@ function ActionDock({
             </span>
             <div>
               <b>Agregar regla</b>
-              <small>Automatiza un movimiento</small>
+              <small>Pago o cobro recurrente</small>
             </div>
           </button>
         </section>
@@ -466,7 +480,7 @@ function ActionDock({
             </span>
             <div>
               <b>Movimientos</b>
-              <small>Tu historial completo</small>
+              <small>Ver todos los movimientos</small>
             </div>
           </button>
           <button onClick={() => navigate('settings')}>
@@ -475,7 +489,7 @@ function ActionDock({
             </span>
             <div>
               <b>Ajustes</b>
-              <small>Tu espacio</small>
+              <small>Ajustes</small>
             </div>
           </button>
           <button className="mobile-logout" onClick={logout}>
@@ -484,7 +498,7 @@ function ActionDock({
             </span>
             <div>
               <b>Cerrar sesión</b>
-              <small>Salir de esta cuenta</small>
+              <small>Cerrar sesión</small>
             </div>
           </button>
         </section>
@@ -574,7 +588,7 @@ function Dashboard({
       </section>
       <section className="pocket-section">
         <div className="mobile-section-head">
-          <h3>Mis bolsillos</h3>
+          <h3>Mis cuentas</h3>
           <button onClick={() => go('wallet')}>Ver todos</button>
         </div>
         <div className="pocket-scroll">
@@ -604,7 +618,7 @@ function Dashboard({
         <div className="mobile-section-head">
           <div>
             <h3>Gastos este mes</h3>
-            <p>Así se movió tu dinero</p>
+            <p>Gastos por categoría</p>
           </div>
           <button onClick={() => go('activity')}>Detalle ›</button>
         </div>
@@ -625,7 +639,7 @@ function Dashboard({
                 </div>
               ))
             ) : (
-              <p>Agrega gastos para ver tus categorías.</p>
+              <p>Sin gastos registrados este mes.</p>
             )}
           </div>
         </div>
@@ -633,7 +647,7 @@ function Dashboard({
       <section className="recent-card">
         <div className="mobile-section-head">
           <div>
-            <h3>Lo último</h3>
+            <h3>Recientes</h3>
             <p>Movimientos recientes</p>
           </div>
           <button onClick={() => go('activity')}>Ver todo</button>
@@ -655,7 +669,7 @@ function Dashboard({
               </button>
             ))
           ) : (
-            <Empty text="Tu actividad aparecerá aquí." />
+            <Empty text="Aún no hay movimientos." />
           )}
         </div>
       </section>
@@ -707,7 +721,7 @@ function Activity({
     <section className="page">
       <div className="section-line">
         <div>
-          <h2>Historial sin misterio</h2>
+          <h2>Historial</h2>
           <p>Filtra, corrige o elimina cualquier movimiento.</p>
         </div>
         <button className="button primary" onClick={() => open({ type: 'transaction' })}>
@@ -904,7 +918,7 @@ function Wallet({
       <div className="section-line">
         <div>
           <h2>Mis finanzas</h2>
-          <p>Consulta y administra cada parte de tu dinero.</p>
+          <p>Cuentas, deudas y reglas fijas.</p>
         </div>
         <button className="button primary" onClick={add}>
           <FiPlus /> Agregar
@@ -960,7 +974,7 @@ function Wallet({
               </article>
             ))
           ) : (
-            <Empty text="Agrega una cuenta de efectivo, débito o crédito." />
+            <Empty text="Aún no tienes cuentas." />
           )}
         </div>
       ) : tab === 'debts' ? (
@@ -1005,7 +1019,7 @@ function Wallet({
                 )
               })
             ) : (
-              <Empty text="Aquí aparecerán las deudas que registres." />
+              <Empty text="Aún no tienes deudas registradas." />
             )}
           </div>
         </Surface>
@@ -1071,7 +1085,7 @@ function Wallet({
                 </article>
               ))
             ) : (
-              <Empty text="Crea una regla y deja que la app recuerde por ti." />
+              <Empty text="Aún no tienes reglas fijas." />
             )}
           </div>
         </>
@@ -1095,8 +1109,8 @@ function Rules({
     <section className="page">
       <div className="section-line">
         <div>
-          <h2>Tu dinero en piloto automático</h2>
-          <p>Reglas con fecha de inicio, fecha final y frecuencia.</p>
+          <h2>Reglas fijas</h2>
+          <p>Pagos y cobros que se registran solos.</p>
         </div>
         <div className="split-buttons">
           <button className="button soft" onClick={processRules}>
@@ -1163,7 +1177,7 @@ function Rules({
               </article>
             ))
           ) : (
-            <Empty text="Crea una regla y deja que la app recuerde por ti." />
+            <Empty text="Aún no tienes reglas fijas." />
           )}
         </div>
       </Surface>
@@ -1187,9 +1201,9 @@ function Projection({ request, balance }: { request: RequestFn; balance: string 
     <section className="page">
       <section className="projection-banner">
         <div>
-          <p className="eyebrow">MIRA HACIA ADELANTE</p>
-          <h2>Que el futuro no te tome por sorpresa.</h2>
-          <p>Usamos tus reglas, tarjetas y pagos para estimar tu flujo de efectivo.</p>
+          <p className="eyebrow">PROYECCIÓN</p>
+          <h2>Estima tu saldo a futuro.</h2>
+          <p>Estimación basada en tus reglas, tarjetas y pagos.</p>
         </div>
         <div>
           <small>Saldo actual</small>
@@ -1255,8 +1269,8 @@ function Settings({ logout }: { logout: () => void }) {
         <div className="profile">
           <span>f</span>
           <div>
-            <h3>Mi espacio financiero</h3>
-            <p>Tu sesión está protegida con token.</p>
+            <h3>Ajustes</h3>
+            <p>Sesión iniciada.</p>
           </div>
         </div>
       </Surface>
@@ -1277,6 +1291,38 @@ function Settings({ logout }: { logout: () => void }) {
         <FiLogOut /> Cerrar sesión
       </button>
     </section>
+  )
+}
+
+function ConfirmDialog({
+  label,
+  onCancel,
+  onConfirm,
+}: {
+  label: string
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div className="dialog-backdrop" onMouseDown={onCancel}>
+      <section className="dialog confirm-dialog" onMouseDown={(e) => e.stopPropagation()}>
+        <header>
+          <h2>¿Eliminar {label}?</h2>
+          <button className="close" onClick={onCancel} aria-label="Cancelar">
+            <FiX />
+          </button>
+        </header>
+        <p>Esta acción no se puede deshacer.</p>
+        <div className="confirm-actions">
+          <button className="button soft" onClick={onCancel}>
+            Cancelar
+          </button>
+          <button className="button danger" onClick={onConfirm}>
+            <FiTrash2 /> Eliminar
+          </button>
+        </div>
+      </section>
+    </div>
   )
 }
 
@@ -1303,10 +1349,7 @@ function Dialog({
     <div className="dialog-backdrop" onMouseDown={onClose}>
       <section className="dialog" onMouseDown={(e) => e.stopPropagation()}>
         <header>
-          <div>
-            <p className="eyebrow">TU ESPACIO</p>
-            <h2>{titles[type]}</h2>
-          </div>
+          <h2>{titles[type]}</h2>
           <button className="close" onClick={onClose}>
             <FiX />
           </button>
