@@ -15,16 +15,13 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(Object.assign(
-    new Error(error.response?.data?.error || 'No fue posible conectar con la API.'),
-    { status: error.response?.status },
-  )),
+  (error) =>
+    Promise.reject(
+      Object.assign(
+        new Error(error.response?.data?.error || 'No fue posible conectar con la API.'),
+        { status: error.response?.status },
+      ),
+    ),
 )
 
 export default client
-
-// Compatibilidad con componentes antiguos que permanecen en el proyecto pero
-// ya no forman parte de la nueva interfaz.
-export const getAccountsSummary = () => client.get('/api/accounts/summary')
-export const getRules = () => client.get('/api/rules/')
-export const deleteRule = (ruleId: number) => client.delete(`/api/rules/${ruleId}`)
