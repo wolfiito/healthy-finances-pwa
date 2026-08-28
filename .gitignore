@@ -51,3 +51,8 @@ coverage
 # --- Vite PWA ---
 # A veces el plugin genera estos archivos en dev
 dev-dist/
+
+# --- Vercel ---
+.vercel
+
+.vercel
